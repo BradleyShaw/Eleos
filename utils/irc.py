@@ -1,5 +1,6 @@
 import string
 import six
+import re
 
 class String(six.text_type):
     translation = str.maketrans(
@@ -30,7 +31,7 @@ class String(six.text_type):
 
     def split(self, splitter=' ', maxsplit=0):
         pattern = re.compile(re.escape(splitter), re.I)
-        return pattern.split(self, maxsplit)
+        return List(pattern.split(self, maxsplit))
 
 class Dict(dict):
 
