@@ -35,38 +35,37 @@ class String(six.text_type):
 class Dict(dict):
 
     def __init__(self, *args, **kwargs):
-        super(Dict, self).__init__()
         d = dict(*args, **kwargs)
         for item in d.items():
             self.__setitem__(*item)
 
     def __setitem__(self, key, value):
         key = self.ircize_key(key)
-        super(Dict, self).__setitem__(key, value)
+        return super(Dict, self).__setitem__(key, value)
 
     def __getitem__(self, key):
         key = self.ircize_key(key)
-        super(Dict, self).__getitem__(key)
+        return super(Dict, self).__getitem__(key)
 
     def __contains__(self, key):
         key = self.ircize_key(key)
-        super(Dict, self).__contains__(key)
+        return super(Dict, self).__contains__(key)
 
     def __delitem__(self, key):
         key = self.ircize_key(key)
-        super(Dict, self).__delitem__(key)
+        return super(Dict, self).__delitem__(key)
 
     def get(self, key, *args, **kwargs):
         key = self.ircize_key(key)
-        super(Dict, self).get(key, *args, **kwargs)
+        return super(Dict, self).get(key, *args, **kwargs)
 
     def setdefault(self, key, *args, **kwargs):
         key = self.ircize_key(key)
-        super(Dict, self).setdefault(key, *args, **kwargs)
+        return super(Dict, self).setdefault(key, *args, **kwargs)
 
     def pop(self, key, *args, **kwargs):
         key = self.ircize_key(key)
-        super(Dict, self).pop(key, *args, **kwargs)
+        return super(Dict, self).pop(key, *args, **kwargs)
 
     @staticmethod
     def ircize_key(key):
