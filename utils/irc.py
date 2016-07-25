@@ -35,6 +35,7 @@ class String(six.text_type):
 class Dict(dict):
 
     def __init__(self, *args, **kwargs):
+        super(Dict, self).__init__()
         d = dict(*args, **kwargs)
         for item in d.items():
             self.__setitem__(*item)
