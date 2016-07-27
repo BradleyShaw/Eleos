@@ -1,0 +1,2 @@
+class CleanExit(Exception):
+    pass

@@ -1,0 +1,40 @@
+{
+    "Stuxnet": {
+        "host": "irc.stuxnet.xyz",
+        "port": 6697,
+        "ssl": true,
+        "nick": "Eleos",
+        "ident": "Eleos",
+        "realname": "Eleos - https://github.com/IndigoTiger/Eleos",
+        "sasl": true,
+        "username": "",
+        "password": "",
+        "autojoin": true,
+        "autorejoin": false,
+        "users": {
+          "<YOUR ACCOUNT>": "+a"
+        },
+        "channels": {
+          "<CHANNEL>": {}
+        }
+    },
+    "freenode": {
+        "host": "chat.freenode.net",
+        "port": 6697,
+        "ssl": true,
+        "nick": "Eleos",
+        "ident": "Eleos",
+        "realname": "Eleos - https://github.com/IndigoTiger/Eleos",
+        "sasl": true,
+        "username": "",
+        "password": "",
+        "autojoin": true,
+        "autorejoin": false,
+        "users": {
+          "IndigoTiger": "+a"
+        },
+        "channels": {
+          "<CHANNEL>": {}
+        }
+    }
+}

@@ -1,5 +1,6 @@
 import string
 import six
+import re
 
 from . import collections
 

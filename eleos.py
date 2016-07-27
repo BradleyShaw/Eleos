@@ -4,12 +4,18 @@ import threading
 import traceback
 import socket
 import glob
+import json
 import time
 import ssl
 import sys
 import os
 
-import utils
+import utils.events
+import utils.log
+import utils.irc
+import utils.hook
+import utils.collections
+import utils.exceptions
 
 class BotManager(object):
 
@@ -58,7 +64,7 @@ class BotManager(object):
 
     def reloadplugins(self):
         for plugin in glob.glob(os.path.join(os.getcwd(), "plugins", "*.py")):
-            import_name = "plugins.{0}".format(plugin.split(os.path.sep)[-1][:3])
+            import_name = "plugins.{0}".format(plugin.split(os.path.sep)[-1][:-3])
             if import_name in self.mtimes.keys():
                 if os.path.getmtime(plugin) != self.mtimes[import_name]:
                     utils.hook.events = []
@@ -85,14 +91,14 @@ class BotManager(object):
 
     def reloadhandlers(self):
         for handler in glob.glob(os.path.join(os.getcwd(), "handlers", "*.py")):
-            import_name = "handlers.{0}".format(handler.split(os.path.sep)[-1][:3])
+            import_name = "handlers.{0}".format(handler.split(os.path.sep)[-1][:-3])
             if import_name in self.mtimes.keys():
                 if os.path.getmtime(handler) != self.mtimes[import_name]:
                     self.importhandler(import_name, handler, True)
                     self.log.debug("Reloaded handler: %s", str(handler))
             else:
                 self.importhandler(import_name, handler)
-                self.log.debug("New handler: %s", str(plugin))
+                self.log.debug("New handler: %s", str(handler))
 
     def reloadconfig(self):
         try:
@@ -103,7 +109,7 @@ class BotManager(object):
                     self.connections[name].config = server
             self.log.debug("(Re)Loaded config.")
         except:
-            self.log.fatal("Unable to (re)load config:")
+            self.log.error("Unable to (re)load config:")
             traceback.print_exc()
             if len(self.threads) == 0:
                 sys.exit(1)
@@ -115,15 +121,19 @@ class BotManager(object):
             t.start()
             self.threads.append(t)
         try:
-            for thread in self.threads:
-                thread.join()
+            self.wait_on_threads()
         except KeyboardInterrupt:
             self.die("Ctrl-C at console.")
 
     def die(self, msg=None):
         for bot in self.connections.values():
             bot.quit(msg, True)
+        self.wait_on_threads()
         sys.exit(0)
+
+    def wait_on_threads(self):
+        for thread in self.threads:
+            thread.join()
 
 class Bot(object):
 
@@ -133,9 +143,9 @@ class Bot(object):
         self.nick = utils.irc.String(self.config["nick"])
         self.regain = False
         self.connected = False
+        self.dying = False
         self.identified = not self.config.get("nickserv") and not self.config.get("sasl")
         self.log = utils.log.getLogger(self.name)
-        self.datadir = os.path.join(self.manager.datadir, self.name)
         t = threading.Thread(target=self.sendqueue)
         t.daemon = True
         t.start()
@@ -144,7 +154,7 @@ class Bot(object):
         part = ""
         data = ""
         while not part.endswith("\r\n"):
-            part = self.socket.recv(2048)
+            part = self.sock.recv(2048)
             self.rx += len(part)
             part = part.decode("UTF-8", "ignore")
             data += part
@@ -168,9 +178,11 @@ class Bot(object):
         self.tx = 0
         self.rxmsgs = 0
         self.txmsgs = 0
+        self.caps = []
         self.channels = utils.irc.Dict()
         self.nicks = utils.irc.Dict()
         self.started = time.time()
+        self.datadir = os.path.join(self.manager.datadir, self.name)
         if self.config.get("ipv6"):
             self.sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
         else:
@@ -180,14 +192,21 @@ class Bot(object):
         try:
             self.log.info("Connecting to %s:%d as %s", self.config["host"],
                 self.config["port"], self.config["nick"])
-            self.connect((self.config["host"], self.config["port"]))
+            self.sock.connect((self.config["host"], self.config["port"]))
             self.send("CAP LS")
-            self.loop()
+            self.send("NICK {0}".format(self.config["nick"]))
+            self.send("USER {0} * * :{1}".format(
+                self.config["ident"], self.config["realname"]))
         except:
             self.log.error("Failed to connect to %s:%d", self.config["host"],
                 self.config["port"])
             traceback.print_exc()
             self.reconnect()
+        else:
+            try:
+                self.loop()
+            except utils.exceptions.CleanExit:
+                sys.exit(0)
 
     def reconnect(self):
         try:
@@ -204,10 +223,9 @@ class Bot(object):
             self.send("QUIT :{0}".format(msg))
         else:
             self.send("QUIT")
-        self.socket.close()
         self.connected = False
         if die:
-            sys.exit(0)
+            self.dying = True
 
     def msg(self, target, msg):
         if self.noflood(target):
@@ -215,6 +233,15 @@ class Bot(object):
         else:
             sendfunc = self.send
         sendfunc("PRIVMSG {0} :{1}".format(target, msg))
+
+    def join(self, channel, key=None):
+        if key:
+            self.send("JOIN {0} {1}".format(channel, key))
+        else:
+            self.send("JOIN {0}".format(channel))
+
+    def multijoin(self, channels):
+        self.send("JOIN {0}".format(",".join(channels)))
 
     def flushq(self):
         lines = len(self.sendq)
@@ -259,6 +286,8 @@ class Bot(object):
             while True:
                 data = self.recv()
                 for line in data:
+                    if len(line) == 0:
+                        continue
                     self.log.debug("--> %s", line)
                     event = utils.events.Event(line)
                     for handler in self.manager.handlers.values():
