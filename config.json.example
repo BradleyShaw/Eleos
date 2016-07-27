@@ -31,7 +31,7 @@
         "autojoin": true,
         "autorejoin": false,
         "users": {
-          "IndigoTiger": "+a"
+          "<YOUR ACCOUNT>": "+a"
         },
         "channels": {
           "<CHANNEL>": {}
