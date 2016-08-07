@@ -1,3 +1,5 @@
+import subprocess
+
 import utils.hook as hook
 
 class Admin(object):
@@ -16,9 +18,22 @@ class Admin(object):
 
     @hook.command(flags="a")
     def die(self, bot, event, args):
-        if len(args) > 0:
-            bot.manager.die(args)
-        else:
-            bot.manager.die(event.source.nick)
+        bot.manager.die("Shutting down ({0} ({1}))".format(event.source.nick,
+            args))
+
+    @hook.command(flags="a")
+    def restart(self, bot, event, args):
+        bot.manager.restart("Restarting ({0} ({1}))".format(event.source.nick,
+            args))
+
+    @hook.command(flags="a")
+    def update(self, bot, event, args):
+        output = subprocess.check_output("git pull -n", stderr=subprocess.STDOUT,
+            shell=True)
+        if output:
+            output = output.decode("UTF-8", "ignore")
+            for line in output:
+                if len(line) > 0:
+                    bot.reply(event, line)
 
 Class = Admin

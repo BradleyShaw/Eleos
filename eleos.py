@@ -145,6 +145,12 @@ class BotManager(object):
         self.wait_on_threads()
         sys.exit(0)
 
+    def restart(self, msg=None):
+        for bot in self.connections.values():
+            bot.quite(msg, True)
+        self.wait_on_threads()
+        os.execv(sys.executable, [sys.executable] + sys.argv)
+
     def wait_on_threads(self):
         for thread in self.threads:
             thread.join()
