@@ -14,4 +14,11 @@ class Admin(object):
         bot.reply(event, "Rehashing config")
         bot.manager.reloadconfig()
 
+    @hook.command(flags="a")
+    def die(self, bot, event, args):
+        if len(args) > 0:
+            bot.manager.die(args)
+        else:
+            bot.manager.die(event.source.nick)
+
 Class = Admin
