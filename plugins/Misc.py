@@ -1,4 +1,10 @@
+from hurry.filesize import size, alternative
+import subprocess
+import psutil
+import os
+
 import utils.hook as hook
+import utils.time as time
 
 class Misc(object):
 
@@ -59,5 +65,19 @@ class Misc(object):
         Check if the bot is alive.
         """
         bot.reply(event, "Pong!")
+
+    @hook.command
+    def status(self, bot, event, args):
+        botuptime = time.timesince(bot.manager.started)
+        connuptime = time.timesince(bot.started)
+        process = psutil.Process(os.getpid())
+        ramusage = size(process.memory_info().rss, system=alternative)
+        datarecv = size(bot.rx, system=alternative)
+        datasent = size(bot.tx, system=alternative)
+        cputime = subprocess.getoutput("ps -p $$ h -o time")
+        bot.reply("This bot has been running for {0}, has been connected for {1}, "
+            "is using {2} of RAM, has used {3} of CPU time, has sent {4} of data "
+            "and received {5} of data".format(botuptime, connuptime, ramusage,
+            cputime, datasent, datarecv))
 
 Class = Misc

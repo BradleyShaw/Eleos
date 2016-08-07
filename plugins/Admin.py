@@ -39,6 +39,6 @@ class Admin(object):
     @hook.command(flags="a")
     def flush(self, bot, event, args):
         lines = bot.flushq()
-        bot.reply(event, "Flushed {0} lines from send queue".format(lines))
+        bot.reply(event, "Flushed {0} lines from send queue.".format(lines))
 
 Class = Admin
