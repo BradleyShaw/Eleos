@@ -1,3 +1,5 @@
+import subprocess
+
 import utils.hook as hook
 import utils.repl as repl
 
@@ -20,5 +22,18 @@ class Exec(object):
         for line in output:
             if len(line) > 0:
                 bot.reply(event, line)
+
+    @hook.command(command=">", flags="a")
+    def _shell(self, bot, event, args):
+        """<command>
+
+        Runs the specified command in a shell and replies with the result.
+        """
+        output = subprocess.check_output(args, stderr=subprocess.STDOUT, shell=True)
+        if output:
+            output = output.decode("UTF-8", "ignore").splitlines()
+            for line in output:
+                if len(line) > 0:
+                    bot.reply(event, line)
 
 Class = Exec
