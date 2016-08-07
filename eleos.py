@@ -147,7 +147,7 @@ class BotManager(object):
 
     def restart(self, msg=None):
         for bot in self.connections.values():
-            bot.quite(msg, True)
+            bot.quit(msg, True)
         self.wait_on_threads()
         os.execv(sys.executable, [sys.executable] + sys.argv)
 
