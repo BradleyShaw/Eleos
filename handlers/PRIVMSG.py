@@ -1,15 +1,22 @@
 import threading
+import re
 
 def on_PRIVMSG(bot, event):
+    if bot.has_flag(event.source, "I"):
+        bot.log.debug("Ignoring message from %s", event.source)
+        return
     msg = event.arguments[0]
+    for plugin in bot.manager.plugins.values():
+        for regex, cfg in plugin["regexes"].items():
+            matches = re.findall(regex, msg)
+            if matches:
+                t = threading.Thread(target=cfg["func"], args=(bot, event, matches))
+                t.daemon = True
+                t.start()
     prefix = bot.config["channels"].get(event.target, {}).get("prefix", bot.config["prefix"])
     if ((len(prefix) > 0 and msg.startswith(prefix)) or msg.startswith(bot.nick)
     or event.target == bot.nick):
         bot.log.debug("Possible command: %r", msg)
-        if bot.has_flag(event.source, "I"):
-            bot.log.debug("Ignoring possible command from %s; user has flag 'I'",
-                events.source)
-            return
         msg = msg.split(" ", 1)
         if msg[0].startswith(bot.nick):
             if msg[0].rstrip(":,") == bot.nick:
