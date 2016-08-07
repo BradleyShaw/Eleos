@@ -77,7 +77,8 @@ class Misc(object):
         cputime = subprocess.getoutput("ps -p $$ h -o time")
         bot.reply(event, "This bot has been running for {0}, has been connected "
             "for {1}, is using {2} of RAM, has used {3} of CPU time, has sent "
-            "{4} of data and received {5} of data".format(botuptime, connuptime,
-            ramusage, cputime, datasent, datarecv))
+            "{4} messages for {5} of data and received {5} messages for {6} of "
+            "data".format(botuptime, connuptime, ramusage, cputime, bot.txmsgs,
+            datasent, bot.rxmsgs, datarecv))
 
 Class = Misc
