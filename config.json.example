@@ -11,11 +11,17 @@
         "password": "",
         "autojoin": true,
         "autorejoin": false,
+        "prefix": "!",
         "users": {
-          "<YOUR ACCOUNT>": "+a"
+            "<USERNAME>": {
+                "hostmasks": [
+                    "YOUR!HOST@MASK"
+                ],
+                "flags": "a"
+            }
         },
         "channels": {
-          "<CHANNEL>": {}
+            "<CHANNEL>": {}
         }
     },
     "freenode": {
@@ -30,11 +36,17 @@
         "password": "",
         "autojoin": true,
         "autorejoin": false,
+        "prefix": "!",
         "users": {
-          "<YOUR ACCOUNT>": "+a"
+            "<USERNAME>": {
+                "hostmasks": [
+                    "YOUR!HOST@MASK"
+                ],
+                "flags": "a"
+            }
         },
         "channels": {
-          "<CHANNEL>": {}
+            "<CHANNEL>": {}
         }
     }
 }

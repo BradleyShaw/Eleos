@@ -1,32 +1,58 @@
 import collections
+import inspect
+
+from .collections import String
 
 events = []
 
 def command(func=None, **kwargs):
     def wrapper(func):
-        func._command = kwargs.get("command", func.__name__)
-        func._help = func.__doc__
-        func._flags = kwargs.get("flags", "A")
-        func._event = "command"
-        events.append(func)
+        cmd = String(kwargs.get("command", func.__name__))
+        events.append({
+            "command": cmd,
+            "help": mkhelp(cmd, inspect.getdoc(func)),
+            "flags": kwargs.get("flags", "A"),
+            "event": "command",
+            "func": func.__name__
+        })
+        return func
     if isinstance(func, collections.Callable):
         return wrapper(func)
     return wrapper
 
 def event(func=None, **kwargs):
     def wrapper(func):
-        func._type = kwargs.get("type", "ALL")
-        func._event = "event"
-        events.append(func)
+        events.append({
+            "type": String(kwargs.get("type", "ALL")),
+            "event": "event",
+            "func": func.__name__
+        })
+        return func
     if isinstance(func, collections.Callable):
         return wrapper(func)
     return wrapper
 
 def regex(func=None, **kwargs):
     def wrapper(func):
-        func._regex = kwargs.get("regex")
-        func._event = "regex"
-        events.append(func)
+        events.append({
+            "regex": kwargs.get("regex"),
+            "event": "regex",
+            "func": func.__name__
+        })
+        return func
     if isinstance(func, collections.Callable):
         return wrapper(func)
     return wrapper
+
+def mkhelp(cmd, docstring):
+    if docstring:
+        docstring = docstring.splitlines()
+        if len(docstring) > 1:
+            syntax = docstring[0]
+            desc = " ".join(docstring[1:]).strip()
+            return "{0} {1} -- {2}".format(cmd, syntax, desc)
+        else:
+            syntax = docstring[0]
+            return "{0} {1}".format(cmd, syntax)
+    else:
+        return "{0} has no help information."

@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+from fnmatch import fnmatch
 import importlib
 import threading
 import traceback
@@ -10,27 +11,26 @@ import ssl
 import sys
 import os
 
-import utils.events
-import utils.log
-import utils.irc
-import utils.hook
 import utils.collections
 import utils.exceptions
+import utils.events
+import utils.hook
+import utils.irc
+import utils.log
 
 class BotManager(object):
 
     def __init__(self, config_file):
         self.connections = {}
-        self.plugins = {}
         self.handlers = {}
         self.mtimes = {}
         self.config = {}
         self.threads = []
-        self.events = []
         self.started = time.time()
         self.log = utils.log.getLogger("Manager")
         self.config_path = os.path.join(os.getcwd(), config_file)
         self.datadir = os.path.join(os.getcwd(), "data")
+        self.plugins = utils.collections.Dict()
         if not os.path.exists(self.datadir):
             self.log.info("Couldn't find data dir, creating it...")
             os.mkdir(self.datadir)
@@ -41,64 +41,78 @@ class BotManager(object):
             self.connections[name] = Bot(name, server)
         self.runall()
 
-    def importplugin(self, plugin_name, path, reload=False):
+    def importhandler(self, handler_name, reload=False):
         try:
-            self.plugins[plugin_name] = importlib.import_module(plugin_name)
+            handler = importlib.import_module("handlers.{0}".format(handler_name))
             if reload:
-                utils.hook.events = []
-                self.plugins[plugin_name] = importlib.reload(self.plugins[plugin_name])
-        except:
-            self.log.error("Unable to (re)load %s:", plugin_name)
-            traceback.print_exc()
-        self.mtimes[plugin_name] = os.path.getmtime(path)
-
-    def importhandler(self, handler_name, path, reload=False):
-        try:
-            self.handlers[handler_name] = importlib.import_module(handler_name)
-            if reload:
-                self.handlers[handler_name] = importlib.reload(self.handlers[handler_name])
+                handler = importlib.reload(handler)
+            self.handlers[handler_name] = handler
         except:
             self.log.error("Unable to (re)load %s:", handler_name)
             traceback.print_exc()
-        self.mtimes[handler_name] = os.path.getmtime(path)
 
-    def reloadplugins(self):
-        for plugin in glob.glob(os.path.join(os.getcwd(), "plugins", "*.py")):
-            import_name = "plugins.{0}".format(plugin.split(os.path.sep)[-1][:-3])
-            if import_name in self.mtimes.keys():
-                if os.path.getmtime(plugin) != self.mtimes[import_name]:
-                    utils.hook.events = []
-                    self.importplugin(import_name, plugin, True)
-                    for event in utils.hook.events:
-                        self.log.debug("New %s found: %s", event._event, event.__name__)
-                        utils.hook.events[utils.hook.events.index(event)].__module__ = import_name
-                        for evn in [e for e in self.events if e.__module__ == import_name]:
-                            if ((utils.hook.events[utils.hook.events.index(event)].__name__ == evn.__name__) or
-                            (evn.__module__ == import_name and evn.__name__ not in [e.__name__ for e in
-                            utils.hook.events])):
-                                self.log.debug("Deleting an old %s: %s", evn._event, evn.__name__)
-                                del(self.events[self.events.index(cmd)])
-                    self.log.debug("Reloaded plugin: %s", str(plugin))
-                    self.events = utils.hook.events + self.events
-            else:
-                utils.hook.events = []
-                self.importplugin(import_name, plugin)
-                for event in utils.hook.events:
-                    self.log.debug("New %s found: %s", event._event, event.__name__)
-                    utils.hook.events[utils.hook.events.index(event)].__module__ = import_name
-                self.log.debug("New plugin: %s", str(plugin))
-                self.events = utils.hook.events + self.events
+    def importplugin(self, plugin_name, reload=False):
+        try:
+            utils.hook.events = []
+            plugin = importlib.import_module("plugins.{0}".format(plugin_name))
+            if reload:
+                plugin = importlib.reload(plugin)
+            if not hasattr(plugin, "Class"):
+                self.log.debug("Ignoring plugin %r; no 'Class' attribute", plugin_name)
+                return
+            self.plugins[plugin_name] = {}
+            self.plugins[plugin_name]["class"] = plugin.Class()
+            self.plugins[plugin_name]["commands"] = utils.collections.Dict()
+            self.plugins[plugin_name]["events"] = utils.collections.Dict()
+            self.plugins[plugin_name]["regexes"] = {}
+            for evn in utils.hook.events:
+                if evn["event"] == "command":
+                    self.log.debug("Found command %r in plugin %r",
+                        evn["command"], plugin_name)
+                    self.plugins[plugin_name]["commands"][evn["command"]] = {
+                        "func": getattr(self.plugins[plugin_name]["class"], evn["func"]),
+                        "flags": evn["flags"],
+                        "help": evn["help"]
+                    }
+                elif evn["event"] == "event":
+                    self.log.debug("Found event %r in plugin %r",
+                        evn["type"], plugin_name)
+                    self.plugins[plugin_name]["events"][evn["type"]] = {
+                        "func": getattr(self.plugins[plugin_name]["class"], evn["func"])
+                    }
+                elif evn["event"] == "regex":
+                    self.log.debug("Found regex %r in plugin %r",
+                        evn["regex"], plugin_name)
+                    self.plugins[plugin_name]["regexes"][evn["regex"]] = {
+                        "func": getattr(self.plugins[plugin_name]["class"], evn["func"])
+                    }
+        except:
+            self.log.error("Unable to (re)load %s:", plugin_name)
+            traceback.print_exc()
 
     def reloadhandlers(self):
         for handler in glob.glob(os.path.join(os.getcwd(), "handlers", "*.py")):
-            import_name = "handlers.{0}".format(handler.split(os.path.sep)[-1][:-3])
-            if import_name in self.mtimes.keys():
-                if os.path.getmtime(handler) != self.mtimes[import_name]:
-                    self.importhandler(import_name, handler, True)
-                    self.log.debug("Reloaded handler: %s", str(handler))
+            handler_name = handler.split(os.path.sep)[-1][:-3]
+            if handler in self.mtimes.keys():
+                if os.path.getmtime(handler) != self.mtimes[handler]:
+                    self.importhandler(handler_name, True)
+                    self.log.debug("Reloaded handler: %s", handler_name)
             else:
-                self.importhandler(import_name, handler)
-                self.log.debug("New handler: %s", str(handler))
+                self.importhandler(handler_name)
+                self.log.debug("New handler: %s", handler_name)
+            self.mtimes[handler] = os.path.getmtime(handler)
+
+    def reloadplugins(self):
+        for plugin in glob.glob(os.path.join(os.getcwd(), "plugins", "*.py")):
+            plugin_name = plugin.split(os.path.sep)[-1][:-3]
+            if plugin in self.mtimes.keys():
+                if os.path.getmtime(plugin) != self.mtimes[plugin]:
+                    self.importplugin(plugin_name, True)
+                    self.log.debug("Reloaded plugin: %s", plugin_name)
+            else:
+                self.importplugin(plugin_name)
+                self.log.debug("New plugin: %s", plugin_name)
+            self.mtimes[plugin] = os.path.getmtime(plugin)
 
     def reloadconfig(self):
         try:
@@ -149,6 +163,25 @@ class Bot(object):
         t = threading.Thread(target=self.sendqueue)
         t.daemon = True
         t.start()
+
+    def get_user_by_hostmask(self, hmask):
+        hmask = str(utils.irc.String(str(hmask)).lower())
+        for user, cfg in self.config["users"].items():
+            for hm in cfg.get("hostmasks", {}):
+                hm = str(utils.irc.String(hm).lower())
+                if fnmatch(hmask, hm):
+                    return user
+
+    def get_user_flags(self, username):
+        if username not in self.config["users"]:
+            return ""
+        return self.config["users"][username].get("flags", "")
+
+    def has_flag(self, hmask, flag):
+        user = self.get_user_by_hostmask(hmask)
+        if not user:
+            return False
+        return flag in self.get_user_flags(user)
 
     def recv(self):
         part = ""
@@ -234,6 +267,13 @@ class Bot(object):
             sendfunc = self.send
         sendfunc("PRIVMSG {0} :{1}".format(target, msg))
 
+    def reply(self, event, msg):
+        if event.target == self.nick:
+            target = event.source.nick
+        else:
+            target = event.target
+        self.msg(target, msg)
+
     def join(self, channel, key=None):
         if key:
             self.send("JOIN {0} {1}".format(channel, key))
@@ -252,17 +292,19 @@ class Bot(object):
         self.sendq = []
         burstdone = False
         while True:
-            if not burstdone:
-                for line in self.sendq[:5]:
+            if len(self.sendq) > 0:
+                if not burstdone:
+                    for line in self.sendq[:5]:
+                        self.send_raw(line)
+                        self.sendq.remove(line)
+                if len(self.sendq) == 0:
+                    burstdone = False
+                else:
+                    line = self.sendq.pop(0)
                     self.send_raw(line)
-                    self.sendq.remove(line)
-            if len(self.sendq) == 0:
-                burstdone = False
-                continue
+                    time.sleep(1)
             else:
-                line = self.sendq.pop(0)
-                self.send_raw(line)
-                time.sleep(1)
+                burstdone = False
             time.sleep(0.2)
 
     def send(self, data):
@@ -286,6 +328,7 @@ class Bot(object):
             while True:
                 data = self.recv()
                 for line in data:
+                    self.manager.reloadhandlers()
                     if len(line) == 0:
                         continue
                     self.log.debug("--> %s", line)
@@ -294,9 +337,15 @@ class Bot(object):
                         if hasattr(handler, "on_{0}".format(event.type)):
                             func = getattr(handler, "on_{0}".format(event.type))
                             func(self, event)
-                    for func in [e for e in self.manager.events if e._event == "event"]:
-                        if func._type == "ALL" or func._type == event.type:
-                            t = threading.Thread(target=func, args=(self, event))
+                    for plugin in self.manager.plugins.values():
+                        if "ALL" in plugin["events"]:
+                            t = threading.Thread(target=plugin["events"]["ALL"]["func"],
+                                                 args=(self, event))
+                            t.daemon = True
+                            t.start()
+                        if event.type in plugin["events"]:
+                            t = threading.Thread(target=plugin["events"][event.type]["func"],
+                                                 args=(self, event))
                             t.daemon = True
                             t.start()
         except socket.error:
