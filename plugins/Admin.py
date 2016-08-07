@@ -31,9 +31,14 @@ class Admin(object):
         output = subprocess.check_output("git pull -n", stderr=subprocess.STDOUT,
             shell=True)
         if output:
-            output = output.decode("UTF-8", "ignore")
+            output = output.decode("UTF-8", "ignore").splitlines()
             for line in output:
                 if len(line) > 0:
                     bot.reply(event, line)
+
+    @hook.command(flags="a")
+    def flush(self, bot, event, args):
+        lines = bot.flushq()
+        bot.reply(event, "Flushed {0} lines from send queue".format(lines))
 
 Class = Admin
