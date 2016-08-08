@@ -23,3 +23,5 @@ class Network(object):
     @hook.event(type="PONG")
     def pong(self, bot, event):
         self.queue.put(event.arguments[0])
+
+Class = Network
