@@ -68,6 +68,10 @@ class Misc(object):
 
     @hook.command
     def status(self, bot, event, args):
+        """takes no arguments
+
+        Replies with various data about the bot's status.
+        """
         botuptime = time.timesince(bot.manager.started)
         connuptime = time.timesince(bot.started)
         process = psutil.Process(os.getpid())

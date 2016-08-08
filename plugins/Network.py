@@ -1,4 +1,4 @@
-import queue
+import collections
 import time
 
 import utils.hook as hook
@@ -6,14 +6,17 @@ import utils.hook as hook
 class Network(object):
 
     def __init__(self):
-        self.queue = queue.Queue()
+        self.queue = collections.deque()
 
     @hook.command
     def latency(self, bot, event, args):
         now = time.time()
         bot.send("PING :{0}".format(now))
         while True:
-            pingts = float(self.queue.get())
+            try:
+                pingts = float(self.queue.pop())
+            except IndexError:
+                continue
             if pingts != now:
                 continue
             diff = time.time() - pingts
@@ -22,6 +25,6 @@ class Network(object):
 
     @hook.event(type="PONG")
     def pong(self, bot, event):
-        self.queue.put(event.arguments[0])
+        self.queue.append(event.arguments[0])
 
 Class = Network
