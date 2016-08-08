@@ -164,6 +164,7 @@ class Bot(object):
         self.regain = False
         self.connected = False
         self.dying = False
+        self.pingthread = None
         self.identified = not self.config.get("nickserv") and not self.config.get("sasl")
         self.log = utils.log.getLogger(self.name)
         t = threading.Thread(target=self.sendqueue)
@@ -221,6 +222,7 @@ class Bot(object):
         self.channels = utils.irc.Dict()
         self.nicks = utils.irc.Dict()
         self.started = time.time()
+        self.lastping = time.time()
         self.datadir = os.path.join(self.manager.datadir, self.name)
         if self.config.get("ipv6"):
             self.sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
@@ -312,6 +314,18 @@ class Bot(object):
             else:
                 burstdone = False
             time.sleep(0.2)
+
+    def pingtimer(self):
+        while True:
+            now = time.time()
+            diff = now - self.lastping
+            if diff >= 120:
+                self.quit("Lag timeout: {0} seconds.".format(int(diff)))
+            elif diff >= 60:
+                self.log.warn("Lag warning: {0} seconds.".format(int(diff)))
+            else:
+                self.send("PING :{0}".format(now))
+            time.sleep(30)
 
     def send(self, data):
         self.sendq.append(data)
