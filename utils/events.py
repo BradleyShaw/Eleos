@@ -29,7 +29,10 @@ class Event(object):
                     self.type = "CTCP"
             elif self.type == "NOTICE":
                 self.type == "CTCPREPLY"
-        args = args.split(":", 1)
+        if args.startswith(":"):
+            args = args.split(":", 1)
+        else:
+            args = args.split(" :", 1)
         for arg in args[0].split(" "):
             if len(arg) > 0:
                 self.arguments.append(arg)
