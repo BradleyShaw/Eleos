@@ -14,7 +14,7 @@ def on_005(bot, event):
                 for param1 in value.split(","):
                     if ":" in value:
                         if ":" in param1:
-                            name1, value1 = param1.split()
+                            name1, value1 = param1.split(":")
                         else:
                             name1 = param1
                             value1 = ""
