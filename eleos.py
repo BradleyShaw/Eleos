@@ -218,9 +218,9 @@ class Bot(object):
         self.tx = 0
         self.rxmsgs = 0
         self.txmsgs = 0
-        self.caps = []
         self.channels = utils.irc.Dict()
         self.nicks = utils.irc.Dict()
+        self.server = utils.collections.Dict()
         self.started = time.time()
         self.lastping = time.time()
         self.datadir = os.path.join(self.manager.datadir, self.name)
