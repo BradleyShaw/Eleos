@@ -18,7 +18,7 @@ def on_CAP(bot, event):
             bot.send("CAP END")
     elif event.arguments[0] == "ACK":
         bot.server["caps"] = event.arguments[1].split()
-        if "sasl" not in bot.caps:
+        if "sasl" not in bot.server["caps"]:
             bot.send("CAP END")
         else:
             bot.send("AUTHENTICATE PLAIN")
