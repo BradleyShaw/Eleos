@@ -18,6 +18,17 @@ class Event(object):
         if self.target:
             self.target = String(self.target)
         self.arguments = []
+        if args.lstrip(":").startswith("\x01") and args.endswith("\x01"):
+            args = args.lstrip(":")
+            args = args.strip("\x01")
+            if self.type == "PRIVMSG":
+                if args.startswith("ACTION"):
+                    self.type = "ACTION"
+                    args = args.replace("ACTION", "", 1).lstrip(" ")
+                else:
+                    self.type = "CTCP"
+            elif self.type == "NOTICE":
+                self.type == "CTCPREPLY"
         args = args.split(":", 1)
         for arg in args[0].split(" "):
             if len(arg) > 0:
