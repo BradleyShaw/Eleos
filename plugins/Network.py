@@ -17,7 +17,7 @@ class Network(object):
     @hook.event(type="PONG")
     def pong(self, bot, event):
         now = time.time()
-        if not self.queue.empty()
+        if not self.queue.empty():
             replyevn, then = self.queue.get_nowait()
             bot.reply(replyevn, "{0:.2f} seconds.".format(now - then))
 
