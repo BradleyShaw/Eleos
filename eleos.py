@@ -209,8 +209,10 @@ class Bot(object):
             self.sock.send(data)
             self.tx += len(data)
             self.txmsgs += 1
-        except AttributeError:
+        except (AttributeError, BrokenPipeError):
             self.log.debug("Dropping message %r; not connected", data)
+            if self.connected:
+                self.reconnect()
 
     def run(self, manager):
         self.manager = manager
