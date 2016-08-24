@@ -199,7 +199,7 @@ class Bot(object):
             part = part.decode("UTF-8", "ignore")
             data += part
         data = data.split("\r\n")
-        self.rxmsgs += len(data)
+        self.rxmsgs += 1
         return data
 
     def send_raw(self, data):
