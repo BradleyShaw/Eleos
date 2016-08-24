@@ -279,11 +279,8 @@ class Bot(object):
             cmd = "NOTICE"
         else:
             cmd = "PRIVMSG"
-        msg = str(msg).encode("UTF-8", "ignore")
-        maxlen = 450 - len("{0} {1} :\r\n".format(cmd, target).encode("UTF-8",
-            "ignore"))
-        msgs = [msg[i:i+maxlen].decode("UTF-8", "ignore")
-            for i in range(0, len(msg), maxlen)]
+        maxlen = 450 - len("{0} {1} :\r\n".format(cmd, target))
+        msgs = [msg[i:i+maxlen] for i in range(0, len(msg), maxlen)]
         for line in msgs:
             sendfunc("{0} {1} :{2}".format(cmd, target, line))
 
