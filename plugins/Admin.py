@@ -41,4 +41,12 @@ class Admin(object):
         lines = bot.flushq()
         bot.reply(event, "Flushed {0} lines from send queue.".format(lines))
 
+    @hook.command(command="join", flags="a")
+    def joincmd(self, bot, event, args):
+        args = args.split(" ", 1)
+        if len(args) == 1:
+            bot.join(args[0])
+        else:
+            bot.join(agrs[0], args[1])
+
 Class = Admin

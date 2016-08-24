@@ -3,15 +3,15 @@ import time
 
 def on_001(bot, event):
     autojoins = []
+    keys = []
     if bot.identified:
         for channel, conf in bot.config["channels"].items():
             if conf.get("autojoin", bot.config.get("autojoin")):
+                autojoins.append(channel)
                 if conf.get("key"):
-                    autojoins.append(" ".join([channel, conf["key"]]))
-                else:
-                    autojoins.append(channel)
+                    keys.append(conf["key"])
         if len(autojoins) > 0:
-            bot.multijoin(autojoins)
+            bot.multijoin(autojoins, keys)
     else:
         bot.msg("NickServ", "IDENTIFY {0} {1}".format(
             bot.config["username"], bot.config["password"]))

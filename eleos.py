@@ -290,8 +290,14 @@ class Bot(object):
         else:
             self.send("JOIN {0}".format(channel))
 
-    def multijoin(self, channels):
-        self.send("JOIN {0}".format(",".join(channels)))
+    def multijoin(self, channels, keys=[]):
+        self.send("JOIN {0} {1}".format(",".join(channels), ",".join(keys)))
+
+    def part(self. channel, msg=None):
+        if msg:
+            bot.send("PART {0} :{1}".format(channel, msg))
+        else:
+            bot.send("PART {0}".format(channel, msg))
 
     def flushq(self):
         lines = len(self.sendq)
