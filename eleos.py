@@ -293,7 +293,7 @@ class Bot(object):
     def multijoin(self, channels, keys=[]):
         self.send("JOIN {0} {1}".format(",".join(channels), ",".join(keys)))
 
-    def part(self. channel, msg=None):
+    def part(self, channel, msg=None):
         if msg:
             bot.send("PART {0} :{1}".format(channel, msg))
         else:
