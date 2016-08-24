@@ -288,10 +288,9 @@ class Bot(object):
 
     def reply(self, event, msg):
         if event.target == self.nick:
-            target = event.source.nick
+            self.msg(event.source.nick, msg, True)
         else:
-            target = event.target
-        self.msg(target, msg)
+            self.msg(event.target, msg)
 
     def join(self, channel, key=None):
         if key:
