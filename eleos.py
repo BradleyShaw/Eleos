@@ -270,12 +270,21 @@ class Bot(object):
         if die:
             self.dying = True
 
-    def msg(self, target, msg):
+    def msg(self, target, msg, notice=False):
         if self.noflood(target):
             sendfunc = self.send_raw
         else:
             sendfunc = self.send
-        sendfunc("PRIVMSG {0} :{1}".format(target, msg))
+        if notice:
+            cmd = "NOTICE"
+        else:
+            cmd = "PRIVMSG"
+        msg = str(msg).encode("UTF-8", "ignore")
+        maxlen = 450 - len("{0} {1} :\r\n".format(cmd, target).encode("UTF-8",
+            "ignore"))
+        msgs = [msg[i:i+maxlen] for i in range(0, len(msg), maxlen)]
+        for line in msgs:
+            sendfunc("{0} {1} :{2}".format(cmd, target, line))
 
     def reply(self, event, msg):
         if event.target == self.nick:
