@@ -17,9 +17,10 @@ class User(object):
             if not user:
                 bot.reply(event, "I don't recognise you.")
         else:
-            user = bot.config["users"].get(args)
-        if user:
-            bot.reply(event, user["flags"])
+            user = args
+        account = bot.config["users"].get(user)
+        if account:
+            bot.reply(event, "Flags for {0}: {1}".format(user, account["flags"]))
         else:
             bot.reply(event, "There is no such user.")
 
