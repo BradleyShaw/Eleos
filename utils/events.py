@@ -16,6 +16,8 @@ class Event(object):
             self.type, args = raw.split(" ", 1)
             self.source = self.target = None
         if self.target:
+            if self.target.startswith(":"): # n!u@h NICK :nuh
+                self.target = self.target.replace(":", "", 1)
             self.target = String(self.target)
         self.arguments = []
         if args.lstrip(":").startswith("\x01") and args.endswith("\x01"):
