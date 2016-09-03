@@ -367,7 +367,7 @@ class Bot(object):
             return nick in self.channels[channel]["ops"]
 
     def is_channel(self, string):
-        return string[0] in bot.server["ISUPPORT"]["CHANTYPES"]
+        return string[0] in self.server["ISUPPORT"]["CHANTYPES"]
 
     def loop(self):
         try:
