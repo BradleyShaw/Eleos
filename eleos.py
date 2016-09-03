@@ -237,6 +237,7 @@ class Bot(object):
         self.started = time.time()
         self.lastping = time.time()
         self.datadir = os.path.join(self.manager.datadir, self.name)
+        self.nick = self.config["nick"]
         if self.config.get("ipv6"):
             self.sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
         else:

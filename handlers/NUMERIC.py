@@ -4,6 +4,7 @@ import time
 def on_001(bot, event):
     autojoins = []
     keys = []
+    bot.connected = True
     if bot.identified:
         for channel, conf in bot.config["channels"].items():
             if conf.get("autojoin", bot.config.get("autojoin")):
@@ -15,7 +16,7 @@ def on_001(bot, event):
     else:
         bot.msg("NickServ", "IDENTIFY {0} {1}".format(
             bot.config["username"], bot.config["password"]))
-    if bot.nick != bot.config["nick"]:
+    if bot.nick != bot.config["nick"] and "password" in bot.config:
         bot.msg("NickServ", "REGAIN {0} {1}".format(
             bot.config["nick"], bot.config["password"]))
     bot.lastping = time.time()
@@ -23,3 +24,13 @@ def on_001(bot, event):
         bot.pingthread = threading.Thread(target=bot.pingtimer)
         bot.pingthread.daemon = True
         bot.pingthread.start()
+
+def on_433(bot, event):
+    if not bot.connected:
+        bot.nick += "_"
+        bot.send("NICK {0}".format(bot.nick))
+
+def on_437(bot, event):
+    if not bot.connected:
+        bot.nick += "_"
+        bot.send("NICK {0}".format(bot.nick))
