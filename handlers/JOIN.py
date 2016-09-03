@@ -14,7 +14,7 @@ def on_JOIN(bot, event):
         bot.channels[channel]["ops"] = List()
         bot.channels[channel]["voices"] = List()
         bot.channels[channel]["syncing"] = {
-            "names": False
+            "names": False,
             "banlist": False,
             "quietlist": False
         }
