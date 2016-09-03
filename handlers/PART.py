@@ -19,7 +19,7 @@ def on_PART(bot, event):
         if reason.startswith("requested by"):
             bot.log.info("removed from {0}".format(channel))
             if bot.config["channels"].get(channel, {}).get("autorejoin",
-                bot.config.get("autorejoin"))
+                bot.config.get("autorejoin")):
                 bot.log.info("Attempting to re-join {0}".format(channel))
                 bot.join(channel, bot.config["channels"].get(channel, {}).get("key"))
 
