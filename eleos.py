@@ -361,10 +361,11 @@ class Bot(object):
             diff = now - self.lastping
             if diff >= 120:
                 self.quit("Lag timeout: {0} seconds.".format(int(diff)))
+                self.reconnect()
+                return
             elif diff >= 60:
                 self.log.warn("Lag warning: {0} seconds.".format(int(diff)))
-            else:
-                self.send("PING :{0}".format(now))
+            self.send("PING :{0}".format(now))
             time.sleep(30)
 
     def send(self, data):
