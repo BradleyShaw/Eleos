@@ -304,9 +304,15 @@ class Bot(object):
 
     def part(self, channel, msg=None):
         if msg:
-            bot.send("PART {0} :{1}".format(channel, msg))
+            self.send("PART {0} :{1}".format(channel, msg))
         else:
-            bot.send("PART {0}".format(channel, msg))
+            self.send("PART {0}".format(channel, msg))
+
+    def who(self, target):
+        if "WHOX" in self.server.get("ISUPPORT", {}):
+            self.send("WHO {0} %tcnuhraf,158".format(target))
+        else:
+            self.send("WHO {0}")
 
     def flushq(self):
         lines = len(self.sendq)
@@ -359,6 +365,9 @@ class Bot(object):
     def is_opped(self, channel, nick):
         if channel in self.channels:
             return nick in self.channels[channel]["ops"]
+
+    def is_channel(self, string):
+        return string[0] in bot.server["ISUPPORT"]["CHANTYPES"]
 
     def loop(self):
         try:
