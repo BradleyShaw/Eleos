@@ -29,7 +29,7 @@ def on_354(bot, event): # WHOX
     # WHOX can have different parameters, so
     # if the reply doesn't have our magic number
     # then let's ignore it to avoid IndexError later
-    if magic != 158:
+    if magic != "158":
         return
     channel = event.arguments[1]
     user = event.arguments[2]
@@ -53,4 +53,4 @@ def on_354(bot, event): # WHOX
                 bot.channels[channel]["ops"].append(nick)
         if "+" in status:
             if nick not in bot.channels[channel]["voices"]:
-                bot.channels[channel]["voices"].append(nick)        
+                bot.channels[channel]["voices"].append(nick)
