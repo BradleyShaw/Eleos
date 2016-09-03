@@ -314,6 +314,12 @@ class Bot(object):
         else:
             self.send("WHO {0}")
 
+    def mode(self, target, modes=None):
+        if modes:
+            self.send("MODE {0} {1}".format(target, modes))
+        else:
+            self.send("MODE {0}".format(target))
+
     def flushq(self):
         lines = len(self.sendq)
         self.sendq = []
