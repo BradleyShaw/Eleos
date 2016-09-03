@@ -15,6 +15,7 @@ import utils.collections
 import utils.exceptions
 import utils.events
 import utils.hook
+import utils.misc
 import utils.irc
 import utils.log
 
@@ -174,9 +175,19 @@ class Bot(object):
     def get_user_by_hostmask(self, hmask):
         hmask = str(utils.irc.String(str(hmask)).lower())
         for user, cfg in self.config["users"].items():
-            for hm in cfg.get("hostmasks", {}):
+            for hm in cfg.get("hostmasks", []):
                 hm = str(utils.irc.String(hm).lower())
                 if fnmatch(hmask, hm):
+                    return user
+        nick = utils.events.NickMask(hmask).nick
+        if nick in self.nicks:
+            if self.nicks[nick]["account"]:
+                return self.get_user_by_account(self.nicks[nick]["account"])
+
+    def get_user_by_account(self, account):
+        for user, cfg in self.config["users"].items():
+            for acc in cfg.get("accounts", []):
+                if utils.misc.irccmp(account, acc):
                     return user
 
     def get_user_flags(self, username):

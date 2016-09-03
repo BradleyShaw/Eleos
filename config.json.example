@@ -17,6 +17,9 @@
                 "hostmasks": [
                     "YOUR!HOST@MASK"
                 ],
+                "accounts": [
+                    "YOURACCOUNT"
+                ],
                 "flags": "a"
             }
         },
@@ -41,6 +44,9 @@
             "<USERNAME>": {
                 "hostmasks": [
                     "YOUR!HOST@MASK"
+                ],
+                "accounts": [
+                    "YOURACCOUNT"
                 ],
                 "flags": "a"
             }
