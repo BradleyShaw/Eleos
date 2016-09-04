@@ -1,4 +1,5 @@
 import subprocess
+import datetime
 import time
 
 def on_CTCP(bot, event):
@@ -16,3 +17,6 @@ def on_CTCP(bot, event):
             bot.ctcpreply(event, ctcptype, repr(" ".join(args))[1:-1])
         else:
             bot.ctcpreply(event, ctcptype, int(time.time()))
+    elif ctcptype == "TIME":
+        now = datetime.datetime.now()
+        bot.ctcpreply(event, ctcptype, now.strftime("%a %b %d %H:%M:%S %Y"))
