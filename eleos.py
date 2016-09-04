@@ -305,6 +305,16 @@ class Bot(object):
         else:
             self.msg(event.target, msg)
 
+    def ctcp(self, target, ctcptype, msg):
+        self.msg(target, "\x01{0} {1}\x01".format(ctcptype, msg))
+
+    def ctcpreply(self, event, ctcptype, msg):
+        reply = "\x01{0} {1}\x01".format(ctcptype, msg)
+        if self.target == self.nick:
+            self.msg(event.source.nick, reply, True)
+        else:
+            self.msg(event.target, reply, True)
+
     def join(self, channel, key=None):
         if key:
             self.send("JOIN {0} {1}".format(channel, key))
