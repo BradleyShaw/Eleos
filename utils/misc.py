@@ -8,3 +8,6 @@ def listreplace(lst, old, new):
         if v == old:
             lst.pop(i)
             lst.insert(i, new)
+
+def count(item, singular, plural):
+    return "{0} {1}".format(item, singular if int(item) == 1 else plural)

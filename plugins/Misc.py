@@ -79,14 +79,15 @@ class Misc(object):
         datarecv = size(bot.rx, system=alternative)
         datasent = size(bot.tx, system=alternative)
         cputime = subprocess.getoutput("ps -p $$ h -o time")
-        users = len(bot.nicks)
-        chans = len(bot.channels)
+        users = misc.count(len(bot.nicks), "user", "users")
+        chans = misc.count(len(bot.channels), "channel", "channels")
+        txmsgs = misc.count(bot.txmsgs, "message", "messages")
+        rxmsgs = misc.count(bot.txmsgs, "message", "messages")
         bot.reply(event, "This bot has been running for {0}, has been connected "
-            "for {1}, is tracking {2} users in {3} channels, is using {4} of RAM, "
-            "has used {5} of CPU time, has sent {6} messages for {6} of data and "
-            "received {7} messages for {8} of data".format(botuptime, connuptime,
-            users, chans, ramusage, cputime, bot.txmsgs, datasent, bot.rxmsgs,
-            datarecv))
+            "for {1}, is tracking {2} in {3}, is using {4} of RAM, has used {5} "
+            "of CPU time, has sent {6} for {6} of data and received {7} for {8} "
+            "of data".format(botuptime, connuptime, users, chans, ramusage,
+            cputime, txmsgs, datasent, rxmsgs, datarecv))
 
     @hook.command
     def version(self, bot, event, args):
