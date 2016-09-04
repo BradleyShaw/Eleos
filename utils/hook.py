@@ -55,4 +55,4 @@ def mkhelp(cmd, docstring):
             syntax = docstring[0]
             return "{0} {1}".format(cmd, syntax)
     else:
-        return "{0} has no help information."
+        return "{0} has no help information.".format(cmd)
