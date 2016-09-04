@@ -116,7 +116,7 @@ class List(list):
 
     def insert(self, pos, item):
         item = self.transform_item(item)
-        return super(List, self).append(pos, item)
+        return super(List, self).insert(pos, item)
 
     def remove(self, item):
         item = self.transform_item(item)
