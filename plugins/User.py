@@ -4,6 +4,10 @@ class User(object):
 
     @hook.command
     def whoami(self, bot, event, args):
+        """takes no arguments
+
+        Returns your current username in the bot config
+        """
         user = bot.get_user_by_hostmask(event.source)
         if user:
             bot.reply(event, user)
@@ -12,6 +16,11 @@ class User(object):
 
     @hook.command
     def flags(self, bot, event, args):
+        """[<username>]
+
+        Returns flags for <username> or yourself if no
+        username is specified.
+        """
         if args == "":
             user = bot.get_user_by_hostmask(event.source)
             if not user:

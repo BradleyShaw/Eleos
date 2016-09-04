@@ -10,6 +10,10 @@ class Network(object):
 
     @hook.command
     def latency(self, bot, event, args):
+        """takes no arguments
+
+        Measures approximate latency to the IRC server.
+        """
         now = time.time()
         bot.send("PING :{0}".format(now))
         self.queue.put((event, now))
