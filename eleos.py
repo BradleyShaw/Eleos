@@ -305,8 +305,11 @@ class Bot(object):
         else:
             self.msg(event.target, msg)
 
-    def ctcp(self, target, ctcptype, msg):
-        self.msg(target, "\x01{0} {1}\x01".format(ctcptype, msg))
+    def ctcp(self, target, ctcptype, msg=None):
+        if msg:
+            self.msg(target, "\x01{0} {1}\x01".format(ctcptype, msg))
+        else:
+            self.msg(target, "\x01{0}\x01".format(ctcptype))
 
     def ctcpreply(self, event, ctcptype, msg):
         reply = "\x01{0} {1}\x01".format(ctcptype, msg)
