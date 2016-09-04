@@ -15,4 +15,4 @@ def on_CTCP(bot, event):
         if len(args) > 0:
             bot.ctcpreply(event, ctcptype, repr(" ".join(args))[1:-1])
         else:
-            bot.ctcpreply(event, ctcptype, time.time())
+            bot.ctcpreply(event, ctcptype, int(time.time()))
