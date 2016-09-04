@@ -310,7 +310,7 @@ class Bot(object):
 
     def ctcpreply(self, event, ctcptype, msg):
         reply = "\x01{0} {1}\x01".format(ctcptype, msg)
-        if self.target == self.nick:
+        if event.target == self.nick:
             self.msg(event.source.nick, reply, True)
         else:
             self.msg(event.target, reply, True)
