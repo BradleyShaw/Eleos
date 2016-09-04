@@ -359,6 +359,7 @@ class Bot(object):
                     for line in self.sendq[:5]:
                         self.send_raw(line)
                         self.sendq.remove(line)
+                    burstdone = True
                 if len(self.sendq) == 0:
                     burstdone = False
                 else:
