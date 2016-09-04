@@ -85,4 +85,21 @@ class Misc(object):
             "data".format(botuptime, connuptime, ramusage, cputime, bot.txmsgs,
             datasent, bot.rxmsgs, datarecv))
 
+    @hook.command
+    def version(self, bot, event, args):
+        """takes no arguments
+
+        Returns the currently running version of the bot.
+        """
+        version = subprocess.getoutput("git describe")
+        bot.reply(event, "Eleos {0}".format(version))
+
+    @hook.command
+    def source(self, bot, event, args):
+        """takes not arguments
+
+        Returns a link to the bot's source.
+        """
+        bot.reply(event, "https://github.com/IndigoTiger/Eleos")
+
 Class = Misc
