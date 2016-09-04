@@ -20,10 +20,9 @@ def on_001(bot, event):
         bot.msg("NickServ", "REGAIN {0} {1}".format(
             bot.config["nick"], bot.config["password"]))
     bot.lastping = time.time()
-    if not bot.pingthread:
-        bot.pingthread = threading.Thread(target=bot.pingtimer)
-        bot.pingthread.daemon = True
-        bot.pingthread.start()
+    bot.pingthread = threading.Thread(target=bot.pingtimer)
+    bot.pingthread.daemon = True
+    bot.pingthread.start()
 
 def on_433(bot, event):
     if not bot.connected:

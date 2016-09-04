@@ -357,7 +357,7 @@ class Bot(object):
             time.sleep(0.2)
 
     def pingtimer(self):
-        while True:
+        while self.connected:
             now = time.time()
             diff = now - self.lastping
             if diff >= 120:
