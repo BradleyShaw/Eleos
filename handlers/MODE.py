@@ -1,4 +1,7 @@
 import utils.helpers as helpers
+from utils.irc import List
+import utils.misc as misc
+import copy
 
 def on_MODE(bot, event):
     if bot.is_channel(event.target):
@@ -37,3 +40,21 @@ def on_MODE(bot, event):
                 nick = mode.split()[1]
                 if nick in bot.channels[channel]["voices"]:
                     bot.channels[channel]["voices"].remove(nick)
+            else:
+                splitmode = mode.split(" ", 1)
+                for m in copy.deepcopy(bot.channels[channel]["modes"]):
+                    sm = m.split(" ", 1)
+                    if splitmode[0].lstrip("+-") == sm[0].lstrip("+"):
+                        if splitmode[0].startswith("-"):
+                            bot.channels[channel]["modes"].remove(m)
+                        elif splitmode[0].startswith("+"):
+                            misc.listreplace(bot.channels[channel]["modes"], m, mode)
+                        break
+                else:
+                    bot.channels[channel]["modes"].append(mode)
+
+def on_324(bot, event):
+    channel = event.arguments[0]
+    modes = helpers.split_modes(event.arguments[1:])
+    if channel in bot.channels:
+        bot.channels[channel]["modes"] = List(modes)

@@ -13,6 +13,7 @@ def on_JOIN(bot, event):
         bot.channels[channel]["quiets"] = List()
         bot.channels[channel]["ops"] = List()
         bot.channels[channel]["voices"] = List()
+        bot.channels[channel]["modes"] = List()
         bot.channels[channel]["syncing"] = {
             "names": False,
             "banlist": False,
@@ -22,6 +23,8 @@ def on_JOIN(bot, event):
         bot.who(channel)
         bot.log.debug("Syncing bans and quiets for %s", channel)
         bot.mode(channel, "bq")
+        bot.log.debug("Syncing modes for %s", channel)
+        bot.mode(channel)
     if nick not in bot.channels[channel]["names"]:
         bot.channels[channel]["names"].append(nick)
     if nick not in bot.nicks:
