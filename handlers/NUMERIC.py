@@ -5,6 +5,8 @@ def on_001(bot, event):
     autojoins = []
     keys = []
     bot.connected = True
+    if "umodes" in bot.config:
+        bot.mode(bot.nick, bot.config["umodes"])
     if bot.identified:
         for channel, conf in bot.config["channels"].items():
             if conf.get("autojoin", bot.config.get("autojoin")):
