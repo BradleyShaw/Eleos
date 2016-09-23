@@ -143,13 +143,19 @@ class BotManager(object):
     def die(self, msg=None):
         for bot in self.connections.values():
             bot.quit(msg, True)
-        self.wait_on_threads()
+        try:
+            self.wait_on_threads()
+        except KeyboardInterrupt:
+            pass
         sys.exit(0)
 
     def restart(self, msg=None):
         for bot in self.connections.values():
             bot.quit(msg, True)
-        self.wait_on_threads()
+        try:
+            self.wait_on_threads()
+        except KeyboardInterrupt:
+            sys.exit(0)
         os.execv(sys.executable, [sys.executable] + sys.argv)
 
     def wait_on_threads(self):
@@ -202,16 +208,17 @@ class Bot(object):
         return flag in self.get_user_flags(user)
 
     def recv(self):
-        part = ""
-        data = ""
-        while not part.endswith("\r\n"):
-            part = self.sock.recv(2048)
-            self.rx += len(part)
-            part = part.decode("UTF-8", "ignore")
-            data += part
-        data = data.split("\r\n")
-        self.rxmsgs += 1
-        return data
+        if self.sock:
+            part = ""
+            data = ""
+            while not part.endswith("\r\n"):
+                part = self.sock.recv(2048)
+                self.rx += len(part)
+                part = part.decode("UTF-8", "ignore")
+                data += part
+            data = data.split("\r\n")
+            self.rxmsgs += len(data)
+            return data
 
     def send_raw(self, data):
         try:
@@ -220,10 +227,8 @@ class Bot(object):
             self.sock.send(data)
             self.tx += len(data)
             self.txmsgs += 1
-        except (AttributeError, BrokenPipeError):
+        except (AttributeError, BrokenPipeError, OSError):
             self.log.debug("Dropping message %r; not connected", data)
-            if self.connected:
-                self.reconnect()
 
     def run(self, manager):
         self.manager = manager
@@ -265,20 +270,24 @@ class Bot(object):
 
     def reconnect(self):
         try:
-            self.quit("Reconnecting")
-            self.log.info("Reconnecting in 10 seconds")
-            time.sleep(10)
-            self.run(self.manager)
+            if self.sock:
+                self.quit("Reconnecting")
+                self.log.info("Reconnecting in 10 seconds")
+                time.sleep(10)
+                self.run(self.manager)
         except:
             pass
 
     def quit(self, msg=None, die=False):
-        self.flushq()
-        if msg:
-            self.send("QUIT :{0}".format(msg))
-        else:
-            self.send("QUIT")
-        self.connected = False
+        if self.connected:
+            self.flushq()
+            if msg:
+                self.send_raw("QUIT :{0}".format(msg))
+            else:
+                self.send_raw("QUIT")
+            self.connected = False
+            self.sock.close()
+        self.sock = None
         if die:
             self.dying = True
 
@@ -403,6 +412,8 @@ class Bot(object):
         try:
             while True:
                 data = self.recv()
+                if data is None:
+                    break
                 for line in data:
                     self.manager.reloadhandlers()
                     if len(line) == 0:

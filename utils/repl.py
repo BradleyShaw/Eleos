@@ -20,6 +20,9 @@ class Repl(code.InteractiveConsole):
         self._buffer = ""
         return result
 
+    def flush(self):
+        self._buffer = ""
+
     def showtraceback(self):
         exc_type, value, lasttb = sys.exc_info()
         self._buffer+="{0}: {1}".format(exc_type.__name__, value)
