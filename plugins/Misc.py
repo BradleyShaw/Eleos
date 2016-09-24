@@ -83,7 +83,7 @@ class Misc(object):
         users = misc.count(len(bot.nicks), "user", "users")
         chans = misc.count(len(bot.channels), "channel", "channels")
         txmsgs = misc.count(bot.txmsgs, "message", "messages")
-        rxmsgs = misc.count(bot.txmsgs, "message", "messages")
+        rxmsgs = misc.count(bot.rxmsgs, "message", "messages")
         bot.reply(event, "This bot has been running for {0}, has been connected "
             "for {1}, is tracking {2} in {3}, is using {4} of RAM, has used {5} "
             "of CPU time, has sent {6} for {7} of data and received {8} for {9} "
