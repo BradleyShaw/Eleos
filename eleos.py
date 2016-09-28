@@ -268,10 +268,10 @@ class Bot(object):
             except utils.exceptions.CleanExit:
                 sys.exit(0)
 
-    def reconnect(self):
+    def reconnect(self, msg="Reconnecting"):
         try:
             if self.sock:
-                self.quit("Reconnecting")
+                self.quit(msg)
                 self.log.info("Reconnecting in 10 seconds")
                 time.sleep(10)
                 self.run(self.manager)
@@ -381,8 +381,7 @@ class Bot(object):
             now = time.time()
             diff = now - self.lastping
             if diff >= 120:
-                self.quit("Lag timeout: {0} seconds.".format(int(diff)))
-                self.reconnect()
+                self.reconnect("Lag timeout: {0} seconds.".format(int(diff)))
                 return
             elif diff >= 60:
                 self.log.warn("Lag warning: {0} seconds.".format(int(diff)))
