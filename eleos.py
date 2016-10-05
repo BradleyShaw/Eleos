@@ -136,7 +136,8 @@ class BotManager(object):
             t.start()
             self.threads.append(t)
         try:
-            self.wait_on_threads()
+            while True:
+                pass
         except KeyboardInterrupt:
             self.die("Ctrl-C at console.")
 
@@ -144,7 +145,7 @@ class BotManager(object):
         for bot in self.connections.values():
             bot.quit(msg, True)
         try:
-            self.wait_on_threads()
+            self.wait_on_threads(5)
         except KeyboardInterrupt:
             pass
         sys.exit(0)
@@ -153,14 +154,14 @@ class BotManager(object):
         for bot in self.connections.values():
             bot.quit(msg, True)
         try:
-            self.wait_on_threads()
+            self.wait_on_threads(5)
         except KeyboardInterrupt:
             sys.exit(0)
         os.execv(sys.executable, [sys.executable] + sys.argv)
 
-    def wait_on_threads(self):
+    def wait_on_threads(self, timeout=None):
         for thread in self.threads:
-            thread.join()
+            thread.join(timeout)
 
 class Bot(object):
 
