@@ -30,8 +30,11 @@ class Admin(object):
 
         Shuts down the bot (with <message> if specified)
         """
-        bot.manager.die("Shutting down ({0} ({1}))".format(event.source.nick,
-            args))
+        if len(args) > 0:
+            bot.manager.die("Shutting down ({0} ({1}))".format(event.source.nick,
+                args))
+        else:
+            bot.manager.die("Shutting down ({0})".format(event.source.nick))
 
     @hook.command(flags="a")
     def restart(self, bot, event, args):
@@ -39,8 +42,11 @@ class Admin(object):
 
         Restarts the bot (with <message> if specified)
         """
-        bot.manager.restart("Restarting ({0} ({1}))".format(event.source.nick,
-            args))
+        if len(args) > 0:
+            bot.manager.restart("Restarting ({0} ({1}))".format(event.source.nick,
+                args))
+        else:
+            bot.manager.restart("Restarting ({0})".format(event.source.nick))
 
     @hook.command(flags="a")
     def update(self, bot, event, args):
