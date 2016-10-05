@@ -137,7 +137,7 @@ class BotManager(object):
             self.threads.append(t)
         try:
             while True:
-                pass
+                time.sleep(5)
         except KeyboardInterrupt:
             self.die("Ctrl-C at console.")
 
