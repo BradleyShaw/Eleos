@@ -30,23 +30,20 @@ def on_PRIVMSG(bot, event):
         if len(prefix) > 0:
             if msg[0].startswith(prefix):
                 msg[0] = msg[0].replace(prefix, "", 1)
-        if msg[0] in bot.manager.plugins:
-            msg = " ".join(msg).split(" ", 2)
-            plugin = msg[0]
-            if len(msg) > 1:
-                command = msg[1]
-                if len(msg) > 2:
-                    args = msg[2]
-                else:
-                    args = ""
-            else:
-                return
+        command = msg[0]
+        if len(msg) > 1:
+            args = msg[1]
+            if msg[0] in bot.manager.plugins:
+                msg = " ".join(msg).split(" ", 2)
+                if len(msg) > 1:
+                    if msg[1] in bot.manager.plugins[msg[0]]["commands"]:
+                        command = msg[1]
+                        if len(msg) > 2:
+                            args = msg[2]
+                        else:
+                            args = ""
         else:
-            command = msg[0]
-            if len(msg) > 1:
-                args = msg[1]
-            else:
-                args = ""
+            args = ""
         if plugin:
             if plugin in bot.manager.plugins:
                 if command in bot.manager.plugins[plugin]["commands"]:
