@@ -344,7 +344,7 @@ class Bot(object):
         if "WHOX" in self.server.get("ISUPPORT", {}):
             self.send("WHO {0} %tcnuhraf,158".format(target))
         else:
-            self.send("WHO {0}")
+            self.send("WHO {0}".format(target))
 
     def mode(self, target, modes=None):
         if modes:
