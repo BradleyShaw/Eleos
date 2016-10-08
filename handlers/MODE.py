@@ -16,21 +16,43 @@ def on_MODE(bot, event):
                 if mask in bot.channels[channel]["bans"]:
                     bot.channels[channel]["bans"].remove(mask)
             elif mode.startswith("+q"):
-                mask = mode.split()[1]
-                if mask not in bot.channels[channel]["quiets"]:
-                    bot.channels[channel]["quiets"].append(mask)
+                if "q" in bot.server["ISUPPORT"]["PREFIX"]:
+                    nick = mode.split()[1]
+                    if nick not in bot.channels[channel]["ops"]:
+                        bot.channels[channel]["ops"].append(nick)
+                elif "q" in bot.server["ISUPPORT"]["CHANMODES"][0]:
+                    mask = mode.split()[1]
+                    if mask not in bot.channels[channel]["quiets"]:
+                        bot.channels[channel]["quiets"].append(mask)
             elif mode.startswith("-q"):
-                mask = mode.split()[1]
-                if mask in bot.channels[channel]["quiets"]:
-                    bot.channels[channel]["quiets"].remove(mask)
-            elif mode.startswith("+o"):
+                if "q" in bot.server["ISUPPORT"]["PREFIX"]:
+                    nick = mode.split()[1]
+                    if nick in bot.channels[channel]["ops"]:
+                        bot.channels[channel]["ops"].remove(nick)
+                elif "q" in bot.server["ISUPPORT"]["CHANMODES"][0]:
+                    mask = mode.split()[1]
+                    if mask in bot.channels[channel]["quiets"]:
+                        bot.channels[channel]["quiets"].remove(mask)
+            elif (mode.startswith("+o") or
+                  mode.startswith("+a") or
+                  mode.startswith("+Y")):
                 nick = mode.split()[1]
                 if nick not in bot.channels[channel]["ops"]:
                     bot.channels[channel]["ops"].append(nick)
-            elif mode.startswith("-o"):
+            elif (mode.startswith("-o") or
+                  mode.startswith("-a") or
+                  mode.startswith("-Y")):
                 nick = mode.split()[1]
                 if nick in bot.channels[channel]["ops"]:
                     bot.channels[channel]["ops"].remove(nick)
+            elif mode.startswith("+h"):
+                nick = mode.split()[1]
+                if nick not in bot.channels[channel]["halfops"]:
+                    bot.channels[channel]["halfops"].append(nick)
+            elif mode.startswith("-h"):
+                nick = mode.split()[1]
+                if nick in bot.channels[channel]["halfops"]:
+                    bot.channel[channel]["halfops"].remove(nick)
             elif mode.startswith("+v"):
                 nick = mode.split()[1]
                 if nick not in bot.channels[channel]["voices"]:

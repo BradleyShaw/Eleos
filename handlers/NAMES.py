@@ -7,7 +7,7 @@ def on_353(bot, event):
         bot.channels[channel]["names"] = List()
         bot.channels[channel]["syncing"]["names"] = True
     for nick in names.split():
-        nick = nick.lstrip("@+")
+        nick = nick.lstrip("".join(list(bot.server["ISUPPORT"]["PREFIX"].values())))
         if nick not in bot.channels[channel]["names"]:
             bot.channels[channel]["names"].append(nick)
 

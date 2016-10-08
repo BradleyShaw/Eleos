@@ -17,12 +17,13 @@ def on_352(bot, event): # WHO
     if channel != "*":
         if channel not in bot.nicks[nick]["channels"]:
             bot.nicks[nick]["channels"].append(channel)
-        if "@" in status:
-            if nick not in bot.channels[channel]["ops"]:
-                bot.channels[channel]["ops"].append(nick)
-        if "+" in status:
-            if nick not in bot.channels[channel]["voices"]:
-                bot.channels[channel]["voices"].append(nick)
+        for char in status:
+            if char in "!~&@":
+                if nick not in bot.channels[channel]["ops"]:
+                    bot.channels[channel]["ops"].append(nick)
+            elif char == "+":
+                if nick not in bot.channels[channel]["voices"]:
+                    bot.channels[channel]["voices"].append(nick)
 
 def on_354(bot, event): # WHOX
     magic = event.arguments[0]
@@ -48,9 +49,10 @@ def on_354(bot, event): # WHOX
     if channel != "*":
         if channel not in bot.nicks[nick]["channels"]:
             bot.nicks[nick]["channels"].append(channel)
-        if "@" in status:
-            if nick not in bot.channels[channel]["ops"]:
-                bot.channels[channel]["ops"].append(nick)
-        if "+" in status:
-            if nick not in bot.channels[channel]["voices"]:
-                bot.channels[channel]["voices"].append(nick)
+        for char in status:
+            if char in "!~&@":
+                if nick not in bot.channels[channel]["ops"]:
+                    bot.channels[channel]["ops"].append(nick)
+            elif char == "+":
+                if nick not in bot.channels[channel]["voices"]:
+                    bot.channels[channel]["voices"].append(nick)

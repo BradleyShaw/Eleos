@@ -12,6 +12,7 @@ def on_JOIN(bot, event):
         bot.channels[channel]["bans"] = List()
         bot.channels[channel]["quiets"] = List()
         bot.channels[channel]["ops"] = List()
+        bot.channels[channel]["halfops"] = List()
         bot.channels[channel]["voices"] = List()
         bot.channels[channel]["modes"] = List()
         bot.channels[channel]["syncing"] = {
@@ -21,8 +22,11 @@ def on_JOIN(bot, event):
         }
         bot.log.debug("Syncing users for %s", channel)
         bot.who(channel)
-        bot.log.debug("Syncing bans and quiets for %s", channel)
-        bot.mode(channel, "bq")
+        bot.log.debug("Syncing bans for %s", channel)
+        if "q" in bot.server["ISUPPORT"]["CHANMODES"][0]:
+            bot.mode(channel, "bq")
+        else:
+            bot.mode(channel, "b")
         bot.log.debug("Syncing modes for %s", channel)
         bot.mode(channel)
     if nick not in bot.channels[channel]["names"]:
