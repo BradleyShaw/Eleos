@@ -52,7 +52,7 @@ def on_MODE(bot, event):
             elif mode.startswith("-h"):
                 nick = mode.split()[1]
                 if nick in bot.channels[channel]["halfops"]:
-                    bot.channel[channel]["halfops"].remove(nick)
+                    bot.channels[channel]["halfops"].remove(nick)
             elif mode.startswith("+v"):
                 nick = mode.split()[1]
                 if nick not in bot.channels[channel]["voices"]:
