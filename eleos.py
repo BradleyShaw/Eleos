@@ -393,7 +393,7 @@ class Bot(object):
         self.sendq.append(data)
 
     def noflood(self, channel):
-        return self.is_op(channel, self.nick) or (self.is_voiced(channel, self.nick)
+        return self.is_op(channel, self.nick) or (self.is_voice(channel, self.nick)
             and "+m" not in self.channels[channel]["modes"])
 
     def is_voice(self, channel, nick):
