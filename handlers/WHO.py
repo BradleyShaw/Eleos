@@ -21,6 +21,9 @@ def on_352(bot, event): # WHO
             if char in "!~&@":
                 if nick not in bot.channels[channel]["ops"]:
                     bot.channels[channel]["ops"].append(nick)
+            elif char == "%":
+                if nick not in bot.channels[channel]["halfops"]:
+                    bot.channels[channel]["halfops"].append(nick)
             elif char == "+":
                 if nick not in bot.channels[channel]["voices"]:
                     bot.channels[channel]["voices"].append(nick)
@@ -53,6 +56,9 @@ def on_354(bot, event): # WHOX
             if char in "!~&@":
                 if nick not in bot.channels[channel]["ops"]:
                     bot.channels[channel]["ops"].append(nick)
+            elif char == "%":
+                if nick not in bot.channels[channel]["halfops"]:
+                    bot.channels[channel]["halfops"].append(nick)
             elif char == "+":
                 if nick not in bot.channels[channel]["voices"]:
                     bot.channels[channel]["voices"].append(nick)
