@@ -1,4 +1,3 @@
-import utils.helpers as helpers
 from utils.irc import List
 import utils.misc as misc
 import copy
@@ -6,7 +5,7 @@ import copy
 def on_MODE(bot, event):
     if bot.is_channel(event.target):
         channel = event.target
-        modes = helpers.split_modes(event.arguments)
+        modes = bot.split_modes(event.arguments)
         for mode in modes:
             if mode.startswith("+b"):
                 mask = mode.split()[1]
@@ -55,6 +54,6 @@ def on_MODE(bot, event):
 
 def on_324(bot, event):
     channel = event.arguments[0]
-    modes = helpers.split_modes(event.arguments[1:])
+    modes = bot.split_modes(event.arguments[1:])
     if channel in bot.channels:
         bot.channels[channel]["modes"] = List(modes)
