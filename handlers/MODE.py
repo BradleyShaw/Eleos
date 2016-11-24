@@ -39,6 +39,8 @@ def on_MODE(bot, event):
                 nick = mode.split()[1]
                 if nick not in bot.channels[channel]["ops"]:
                     bot.channels[channel]["ops"].append(nick)
+                if nick == bot.nick and channel in bot.opqueue:
+                    bot.opqueue[channel].put(True)
             elif (mode.startswith("-o") or
                   mode.startswith("-a") or
                   mode.startswith("-Y")):

@@ -11,3 +11,14 @@ def on_NOTICE(bot, event):
                         autojoins.append(channel)
                 if len(autojoins) > 0:
                     bot.multijoin(autojoins)
+    elif event.source.nick == "ChanServ":
+        if msg.startswith("You are not authorized to (de)op"):
+            msg = msg.split(" ")
+            nick = msg[6].strip("\x02")
+            channel = msg[8].strip("\x02")
+            if nick == bot.nick and channel in bot.opqueue:
+                bot.opqueue[channel].put(False)
+        elif msg.endswith("is not registered."):
+            channel = msg.split(" ")[1].strip("\x02")
+            if channel in bot.opqueue:
+                bot.opqueue[channel].put(False)

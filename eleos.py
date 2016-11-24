@@ -4,6 +4,7 @@ import importlib
 import threading
 import traceback
 import socket
+import queue
 import glob
 import json
 import time
@@ -244,6 +245,7 @@ class Bot(object):
         self.lastping = time.time()
         self.datadir = os.path.join(self.manager.datadir, self.name)
         self.nick = self.config["nick"]
+        self.opqueue = utils.irc.Dict()
         if self.config.get("ipv6"):
             self.sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
         else:
@@ -437,16 +439,16 @@ class Bot(object):
                 if mode in argmodes["set"]:
                     modearg = modes[argscount]
                     argscount += 1
-                    splitmodes.append("+{} {}".format(mode, modearg))
+                    splitmodes.append("+{0} {1}".format(mode, modearg))
                 else:
-                    splitmodes.append("+{}".format(mode))
+                    splitmodes.append("+{0}".format(mode))
             else:
                 if mode in argmodes["unset"]:
                     modearg = modes[argscount]
                     argscount += 1
-                    splitmodes.append("-{} {}".format(mode, modearg))
+                    splitmodes.append("-{0} {1}".format(mode, modearg))
                 else:
-                    splitmodes.append("-{}".format(mode))
+                    splitmodes.append("-{0}".format(mode))
         return splitmodes
 
     def unsplit_modes(self, modes):
@@ -481,6 +483,21 @@ class Bot(object):
         if unsplitmodes != [""]:
             finalmodes.append(" ".join(unsplitmodes))
         return finalmodes
+
+    def request_op(self, channel):
+        if channel not in self.channels:
+            return False
+        elif self.is_op(channel, self.nick):
+            return True
+        self.opqueue[channel] = queue.Queue()
+        self.msg("ChanServ", "OP {0}".format(channel))
+        try:
+            gotop = self.opqueue[channel].get(timeout=30)
+            del(self.opqueue[channel])
+            return gotop
+        except queue.Empty:
+            del(self.opqueue[channel])
+            return False
 
     def loop(self):
         try:
