@@ -11,7 +11,10 @@ def command(func=None, **kwargs):
         events.append({
             "command": cmd,
             "help": mkhelp(cmd, inspect.getdoc(func)),
-            "flags": kwargs.get("flags", "A"),
+            "perms": {
+                "global": kwargs.get("global_only", False),
+                "flags": kwargs.get("flags", "A")
+            },
             "event": "command",
             "func": func.__name__
         })

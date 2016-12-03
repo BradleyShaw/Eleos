@@ -1,6 +1,7 @@
+import utils.plugins as plugins
 import utils.hook as hook
 
-class User(object):
+class User(plugins.Plugin):
 
     @hook.command
     def whoami(self, bot, event, args):

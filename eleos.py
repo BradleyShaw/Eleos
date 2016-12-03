@@ -63,7 +63,7 @@ class BotManager(object):
                 self.log.debug("Ignoring plugin %r; no 'Class' attribute", plugin_name)
                 return
             self.plugins[plugin_name] = {}
-            self.plugins[plugin_name]["class"] = plugin.Class()
+            self.plugins[plugin_name]["class"] = plugin.Class(self)
             self.plugins[plugin_name]["commands"] = utils.collections.Dict()
             self.plugins[plugin_name]["events"] = utils.collections.Dict()
             self.plugins[plugin_name]["regexes"] = {}
@@ -73,7 +73,7 @@ class BotManager(object):
                         evn["command"], plugin_name)
                     self.plugins[plugin_name]["commands"][evn["command"]] = {
                         "func": getattr(self.plugins[plugin_name]["class"], evn["func"]),
-                        "flags": evn["flags"],
+                        "perms": evn["perms"],
                         "help": evn["help"]
                     }
                 elif evn["event"] == "event":
@@ -119,7 +119,7 @@ class BotManager(object):
     def reloadconfig(self):
         try:
             with open(self.config_path) as configfile:
-                self.config = json.load(configfile)
+                self.config = json.load(configfile, object_hook=utils.irc.Dict)
             for name, server in self.config.items():
                 if name in self.connections:
                     self.connections[name].config = server
@@ -173,7 +173,7 @@ class Bot(object):
         self.regain = False
         self.connected = False
         self.dying = False
-        self.pingthread = None
+        self.pingtask = None
         self.identified = not self.config.get("nickserv") and not self.config.get("sasl")
         self.log = utils.log.getLogger(self.name)
         t = threading.Thread(target=self.sendqueue)
@@ -198,16 +198,30 @@ class Bot(object):
                 if utils.misc.irccmp(account, acc):
                     return user
 
-    def get_user_flags(self, username):
+    def get_user_flags(self, username, global_only=False, channel=None):
         if username not in self.config["users"]:
             return ""
-        return self.config["users"][username].get("flags", "")
+        flags = self.config["users"][username].get("flags", "")
+        if channel and not global_only:
+            if channel in self.config["channels"]:
+                # This can result in duplicates, but who the fuck cares?!
+                flags += self.config["channels"][channel].get("flags", {}).get(
+                    username, "")
+        return flags
 
-    def has_flag(self, hmask, flag):
+    def has_flag(self, hmask, flag, global_only=False, channel=None):
         user = self.get_user_by_hostmask(hmask)
         if not user:
             return False
-        return flag in self.get_user_flags(user)
+        return flag in self.get_user_flags(user, global_only, channel)
+
+    def get_channel_config(self, channel, key=None, default=None):
+        config = self.config["channels"].get("default", {})
+        config.update(self.config["channels"].get(channel, {}))
+        if key:
+            return config.get(key, default)
+        else:
+            return config
 
     def recv(self):
         if self.sock:
@@ -288,6 +302,9 @@ class Bot(object):
                 self.send_raw("QUIT :{0}".format(msg))
             else:
                 self.send_raw("QUIT")
+            if self.pingtask:
+                self.pingtask.stop()
+                self.pingtask = None
             self.connected = False
             self.sock.close()
         self.sock = None
@@ -354,6 +371,15 @@ class Bot(object):
         else:
             self.send("MODE {0}".format(target))
 
+    def kick(self, channel, target, message=None):
+        if self.get_channel_config(channel, "remove"):
+            kickcmd = "REMOVE"
+        else:
+            kickcmd = "KICK"
+        if not message:
+            message = self.get_channel_config(channel, "kickmsg", "Goodbye.")
+        self.send("{0} {1} {2} :{3}".format(kickcmd, channel, target, message))
+
     def flushq(self):
         lines = len(self.sendq)
         self.sendq = []
@@ -379,17 +405,18 @@ class Bot(object):
                 burstdone = False
             time.sleep(0.2)
 
-    def pingtimer(self):
-        while self.connected:
-            now = time.time()
-            diff = now - self.lastping
-            if diff >= 120:
-                self.reconnect("Lag timeout: {0} seconds.".format(int(diff)))
-                return
-            elif diff >= 60:
-                self.log.warn("Lag warning: {0} seconds.".format(int(diff)))
-            self.send("PING :{0}".format(now))
-            time.sleep(30)
+    def ping(self):
+        now = time.time()
+        if not self.connected:
+            self.lastping = now
+            return
+        diff = now - self.lastping
+        if diff >= 120:
+            self.reconnect("Lag timeout: {0} seconds.".format(int(diff)))
+            return
+        elif diff >= 60:
+            self.log.warn("Lag warning: {0} seconds.".format(int(diff)))
+        self.send("PING :{0}".format(now))
 
     def send(self, data):
         self.sendq.append(data)

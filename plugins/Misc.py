@@ -3,11 +3,12 @@ import subprocess
 import psutil
 import os
 
+import utils.plugins as plugins
 import utils.hook as hook
 import utils.misc as misc
 import utils.time as time
 
-class Misc(object):
+class Misc(plugins.Plugin):
 
     @hook.command(command="list")
     def listcmd(self, bot, event, args):
@@ -16,12 +17,12 @@ class Misc(object):
         Lists the commands in the specified plugin. If no plugin is specified,
         lists all loaded plugins.
         """
-        if args in bot.manager.plugins:
+        if args in self.manager.plugins:
             bot.reply(event,
-                ", ".join(sorted(bot.manager.plugins[args]["commands"].keys())))
+                ", ".join(sorted(self.manager.plugins[args]["commands"].keys())))
         else:
             bot.reply(event,
-                ", ".join(sorted(bot.manager.plugins.keys())))
+                ", ".join(sorted(self.manager.plugins.keys())))
 
     @hook.command(command="help")
     def helpcmd(self, bot, event, args):
@@ -33,7 +34,7 @@ class Misc(object):
         """
         if args == "":
             bot.reply(event,
-                bot.manager.plugins["Misc"]["commands"]["help"]["help"])
+                self.get_help("help"))
             return
         args = args.split(" ")
         plugin = None
@@ -42,22 +43,26 @@ class Misc(object):
             command = args[1]
         else:
             command = args[0]
-        if plugin:
-            if plugin in bot.manager.plugins:
-                if command in bot.manager.plugins[plugin]["commands"]:
-                    bot.reply(event,
-                        bot.manager.plugins[plugin]["commands"][command]["help"])
-                else:
-                    bot.reply(event, "Error: There is no such command.")
-            else:
-                bot.reply(event, "Error: There is no such plugin.")
-        else:
-            for plugin in bot.manager.plugins.values():
+        cmdhelp = None
+        if not plugin:
+            plugins = []
+            for name, plugin in self.manager.plugins.items():
                 if command in plugin["commands"]:
-                    bot.reply(event, plugin["commands"][command]["help"])
-                    break
+                    plugins.append(name)
+            if len(plugins) == 0:
+                bot.reply(event, "Error: No such command.")
+                return
+            elif len(plugins) > 1:
+                bot.reply(event, "Error: This command exists in more than one "
+                    "plugin.")
+                return
             else:
-                bot.reply(event, "Error: There is no such command.")
+                plugin = plugins[0]
+        cmdhelp = self.get_help(command, plugin)
+        if cmdhelp:
+            bot.reply(event, cmdhelp)
+        else:
+            bot.reply(event, "Error: No such command.")
 
     @hook.command
     def ping(self, bot, event, args):
@@ -73,7 +78,7 @@ class Misc(object):
 
         Replies with various data about the bot's status.
         """
-        botuptime = time.timesince(bot.manager.started)
+        botuptime = time.timesince(self.manager.started)
         connuptime = time.timesince(bot.started)
         process = psutil.Process(os.getpid())
         ramusage = size(process.memory_info().rss, system=alternative)

@@ -1,11 +1,13 @@
 import queue
 import time
 
+import utils.plugins as plugins
 import utils.hook as hook
 
-class Network(object):
+class Network(plugins.Plugin):
 
-    def __init__(self):
+    def __init__(self, manager):
+        super(Network, self).__init__(manager)
         self.queue = queue.Queue()
 
     @hook.command

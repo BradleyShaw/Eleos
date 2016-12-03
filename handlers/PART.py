@@ -18,10 +18,9 @@ def on_PART(bot, event):
             del(bot.channels[channel])
         if reason.startswith("requested by"):
             bot.log.info("removed from {0}".format(channel))
-            if bot.config["channels"].get(channel, {}).get("autorejoin",
-                bot.config.get("autorejoin")):
+            if bot.get_channel_config(channel, "autorejoin"):
                 bot.log.info("Attempting to re-join {0}".format(channel))
-                bot.join(channel, bot.config["channels"].get(channel, {}).get("key"))
+                bot.join(channel, bot.get_channel_config(channel, "key"))
 
     if channel in bot.channels:
         if nick in bot.channels[channel]["names"]:

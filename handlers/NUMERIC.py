@@ -1,6 +1,8 @@
 import threading
 import time
 
+import utils.task as task
+
 def on_001(bot, event):
     autojoins = []
     keys = []
@@ -8,11 +10,14 @@ def on_001(bot, event):
     if "umodes" in bot.config:
         bot.mode(bot.nick, bot.config["umodes"])
     if bot.identified:
-        for channel, conf in bot.config["channels"].items():
-            if conf.get("autojoin", bot.config.get("autojoin")):
+        for channel in bot.config["channels"]:
+            if channel == "default":
+                continue
+            if bot.get_channel_config(channel, "autojoin"):
                 autojoins.append(channel)
-                if conf.get("key"):
-                    keys.append(conf["key"])
+                key = bot.get_channel_config(channel, "key")
+                if key:
+                    keys.append(key)
         if len(autojoins) > 0:
             bot.multijoin(autojoins, keys)
     else:
@@ -22,9 +27,7 @@ def on_001(bot, event):
         bot.msg("NickServ", "REGAIN {0} {1}".format(
             bot.config["nick"], bot.config["password"]))
     bot.lastping = time.time()
-    bot.pingthread = threading.Thread(target=bot.pingtimer)
-    bot.pingthread.daemon = True
-    bot.pingthread.start()
+    bot.pingtask = task.run_every(30, bot.ping)
 
 def on_433(bot, event):
     if not bot.connected:

@@ -9,9 +9,6 @@
         "sasl": true,
         "username": "",
         "password": "",
-        "autojoin": true,
-        "autorejoin": false,
-        "prefix": "!",
         "users": {
             "<USERNAME>": {
                 "hostmasks": [
@@ -24,6 +21,11 @@
             }
         },
         "channels": {
+            "default": {
+                "autojoin": true,
+                "autorejoin": false,
+                "prefix": "!"
+            },
             "<CHANNEL>": {}
         }
     },
@@ -37,9 +39,6 @@
         "sasl": true,
         "username": "",
         "password": "",
-        "autojoin": true,
-        "autorejoin": false,
-        "prefix": "!",
         "users": {
             "<USERNAME>": {
                 "hostmasks": [
@@ -52,6 +51,11 @@
             }
         },
         "channels": {
+            "default": {
+                "autojoin": true,
+                "autorejoin": false,
+                "prefix": "!"
+            },
             "<CHANNEL>": {}
         }
     }

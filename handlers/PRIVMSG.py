@@ -13,7 +13,7 @@ def on_PRIVMSG(bot, event):
                 t = threading.Thread(target=cfg["func"], args=(bot, event, matches))
                 t.daemon = True
                 t.start()
-    prefix = bot.config["channels"].get(event.target, {}).get("prefix", bot.config["prefix"])
+    prefix = bot.get_channel_config(event.target, "prefix")
     if ((len(prefix) > 0 and msg.startswith(prefix)) or msg.startswith(bot.nick)
     or event.target == bot.nick):
         bot.log.debug("Possible command: %r", msg)
@@ -47,8 +47,11 @@ def on_PRIVMSG(bot, event):
         if plugin:
             if plugin in bot.manager.plugins:
                 if command in bot.manager.plugins[plugin]["commands"]:
-                    for flag in bot.manager.plugins[plugin]["commands"][command]["flags"]:
-                        if bot.has_flag(event.source, flag) or flag == "A":
+                    global_only = bot.manager.plugins[plugin]["commands"][command]["perms"]["global"]
+                    flags = bot.manager.plugins[plugin]["commands"][command]["perms"]["flags"]
+                    channel = event.target if bot.is_channel(event.target) else None
+                    for flag in flags:
+                        if bot.has_flag(event.source, flag, global_only, channel) or flag == "A":
                             bot.log.info("%s called %r in %s", event.source, command,
                                 event.target if event.target != bot.nick else "private")
                             t = threading.Thread(
@@ -70,8 +73,11 @@ def on_PRIVMSG(bot, event):
         else:
             for plugin in bot.manager.plugins.values():
                     if command in plugin["commands"]:
-                        for flag in plugin["commands"][command]["flags"]:
-                            if bot.has_flag(event.source, flag) or flag == "A":
+                        global_only = plugin["commands"][command]["perms"]["global"]
+                        flags = plugin["commands"][command]["perms"]["flags"]
+                        channel = event.target if bot.is_channel(event.target) else None
+                        for flag in flags:
+                            if bot.has_flag(event.source, flag, global_only, channel) or flag == "A":
                                 bot.log.info("%s called %r in %s", event.source, command,
                                     event.target if event.target != bot.nick else "private")
                                 t = threading.Thread(

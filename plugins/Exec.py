@@ -1,9 +1,10 @@
 import subprocess
 
+import utils.plugins as plugins
 import utils.hook as hook
 import utils.repl as repl
 
-class Exec(object):
+class Exec(plugins.Plugin):
 
     @hook.command(command=">>", flags="a")
     def _exec(self, bot, event, args):

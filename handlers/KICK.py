@@ -17,10 +17,9 @@ def on_KICK(bot, event):
                 del(bot.nicks[nick])
         if channel in bot.channels:
             del(bot.channels[channel])
-        if bot.config["channels"].get(channel, {}).get("autorejoin",
-            bot.config.get("autorejoin")):
+        if bot.get_channel_config(channel, "autorejoin"):
             bot.log.info("Attempting to re-join {0}".format(channel))
-            bot.join(channel, bot.config["channels"].get(channel, {}).get("key"))
+            bot.join(channel, bot.get_channel_config(channel, "key"))
 
     if channel in bot.channels:
         if target in bot.channels[channel]["names"]:
@@ -28,7 +27,7 @@ def on_KICK(bot, event):
         if target in bot.channels[channel]["ops"]:
             bot.channels[channel]["ops"].remove(target)
         if target in bot.channels[channel]["voices"]:
-            bot.channels[channels]["voices"].remove(target)
+            bot.channels[channel]["voices"].remove(target)
 
     if target in bot.nicks:
         if channel in bot.nicks[target]["channels"]:
