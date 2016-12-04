@@ -11,6 +11,7 @@ import time
 import ssl
 import sys
 import os
+import re
 
 import utils.collections
 import utils.exceptions
@@ -441,6 +442,97 @@ class Bot(object):
 
     def is_channel(self, string):
         return string[0] in self.server["ISUPPORT"]["CHANTYPES"]
+
+    def is_affected(self, nickmask, banmask):
+        extban = None
+        if "!" not in nickmask:
+            if nickmask in self.nicks:
+                nickmask = "{0}!{1}@{2}".format(nickmask, self.nicks[nickmask]["user"],
+                    self.nicks[nickmask]["host"])
+        nickmask = utils.events.NickMask(str(nickmask))
+        if self.server["ISUPPORT"].get("EXTBAN"):
+            extban = self.parse_extban(banmask)
+        if extban:
+            letter = extban["letter"]
+            banmask = extban.get("arg")
+            if banmask:
+                banmask = banmask.lower()
+            negate = extban.get("negate", False)
+            if letter == "a":
+                account = self.nicks.get(nickmask.nick, {}).get("account")
+                if account:
+                    account = utils.irc.String(account).lower()
+                if negate and not account:
+                    return True
+                elif banmask:
+                    if fnmatch(account, banmask):
+                        if not negate:
+                            return True
+                    elif negate:
+                        return True
+                elif account and not negate:
+                    return True
+            elif not banmask:
+                return False
+            elif letter == "c":
+                if banmask not in self.channels:
+                    return False
+                if nickmask.nick in self.channels[banmask]["names"]:
+                    if not negate:
+                        return True
+                elif negate:
+                    return True
+            elif letter == "j":
+                if banmask not in self.channels:
+                    return False
+                for ban in self.channels[banmask]["bans"]:
+                    if self.is_affected(nickmask, ban):
+                        if not negate:
+                            return True
+                if negate:
+                    return True
+            elif letter == "r":
+                if nickmask.nick not in self.nicks:
+                    return False
+                realname = utils.irc.String(self.nicks[nickmask.nick]["realname"]).lower()
+                if fnmatch(realname, banmask):
+                    if not negate:
+                        return True
+                elif negate:
+                    return True
+            elif letter == "x":
+                if nickmask.nick not in self.nicks:
+                    return False
+                cmpmask = "{0}#{1}".format(utils.irc.String(str(nickmask)).lower(),
+                    utils.irc.String(self.nicks[nickmask.nick]["realname"]).lower())
+                if fnmatch(cmpmask, banmask):
+                    if not negate:
+                        return True
+                elif negate:
+                    return True
+        else:
+            nickmask = utils.irc.String(str(nickmask)).lower()
+            banmask = utils.irc.String(str(banmask)).lower()
+            if fnmatch(nickmask, banmask):
+                return True
+        return False
+
+    def parse_extban(self, eb):
+        ebprefix = self.server["ISUPPORT"]["EXTBAN"][0]
+        if ebprefix in ".^$*+?{}[]()\\|":
+            ebprefix = "\\{0}".format(ebprefix)
+        for ebletter in self.server["ISUPPORT"]["EXTBAN"][1]:
+            if ebletter in ".^$*+?{}[]()\\|":
+                ebletter = "\\{0}".format(ebletter)
+            if re.match("^{0}~?{1}(:(.+)?)?$".format(ebprefix, ebletter),
+                        eb):
+                extban = {}
+                extban["letter"] = ebletter
+                if ":" in eb:
+                    extban["arg"] = utils.irc.String(eb.split(":", 1)[1])
+                if re.match("^{0}~{1}".format(ebprefix, ebletter), eb):
+                    extban["negate"] = True
+                return extban
 
     def getargmodes(self):
         chanmodes = self.server["ISUPPORT"]["CHANMODES"]
