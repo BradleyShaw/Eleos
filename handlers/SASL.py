@@ -12,6 +12,8 @@ def on_CAP(bot, event):
                 caps.append(cap)
             elif cap == "multi-prefix":
                 caps.append(cap)
+            elif cap == "away-notify":
+                caps.append(cap)
         if len(caps) > 0:
             bot.send("CAP REQ :{0}".format(" ".join(caps)))
         else:

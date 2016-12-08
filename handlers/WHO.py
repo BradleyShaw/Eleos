@@ -14,6 +14,10 @@ def on_352(bot, event): # WHO
     bot.nicks[nick]["host"] = host
     bot.nicks[nick]["realname"] = realname
     bot.nicks[nick]["account"] = None # WHO replies don't contain the account
+    bot.nicks[nick]["ip"] = None
+    bot.nicks[nick]["away"] = None
+    if status.startswith("G"):
+        bot.send("WHOIS {0}".format(nick))
     if channel != "*":
         if channel not in bot.nicks[nick]["channels"]:
             bot.nicks[nick]["channels"].append(channel)
@@ -37,11 +41,12 @@ def on_354(bot, event): # WHOX
         return
     channel = event.arguments[1]
     user = event.arguments[2]
-    host = event.arguments[3]
-    nick = event.arguments[4]
-    status = event.arguments[5]
-    account = event.arguments[6]
-    realname = event.arguments[7]
+    ipaddr = event.arguments[3]
+    host = event.arguments[4]
+    nick = event.arguments[5]
+    status = event.arguments[6]
+    account = event.arguments[7]
+    realname = event.arguments[8]
     if nick not in bot.nicks:
         bot.nicks[nick] = {}
         bot.nicks[nick]["channels"] = List()
@@ -49,6 +54,10 @@ def on_354(bot, event): # WHOX
     bot.nicks[nick]["host"] = host
     bot.nicks[nick]["realname"] = realname
     bot.nicks[nick]["account"] = account if account != "0" else None
+    bot.nicks[nick]["ip"] = ipaddr if ipaddr != "255.255.255.255" else None
+    bot.nicks[nick]["away"] = None
+    if status.startswith("G"):
+        bot.send("WHOIS {0}".format(nick))
     if channel != "*":
         if channel not in bot.nicks[nick]["channels"]:
             bot.nicks[nick]["channels"].append(channel)

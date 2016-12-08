@@ -362,9 +362,12 @@ class Bot(object):
 
     def who(self, target):
         if "WHOX" in self.server.get("ISUPPORT", {}):
-            self.send("WHO {0} %tcnuhraf,158".format(target))
+            self.send("WHO {0} %tcnuhiraf,158".format(target))
         else:
             self.send("WHO {0}".format(target))
+
+    def whois(self, nick):
+        self.send("WHOIS {0}".format(nick))
 
     def mode(self, target, modes=None):
         if modes:
@@ -445,11 +448,12 @@ class Bot(object):
 
     def is_affected(self, nickmask, banmask):
         extban = None
+        nickmask = str(nickmask)
         if "!" not in nickmask:
             if nickmask in self.nicks:
                 nickmask = "{0}!{1}@{2}".format(nickmask, self.nicks[nickmask]["user"],
                     self.nicks[nickmask]["host"])
-        nickmask = utils.events.NickMask(str(nickmask))
+        nickmask = utils.events.NickMask(nickmask)
         if self.server["ISUPPORT"].get("EXTBAN"):
             extban = self.parse_extban(banmask)
         if extban:
@@ -515,6 +519,12 @@ class Bot(object):
             banmask = utils.irc.String(str(banmask)).lower()
             if fnmatch(nickmask, banmask):
                 return True
+        nickmask = utils.events.NickMask(str(nickmask))
+        if nickmask.nick in self.nicks:
+            ipaddr = self.nicks[nickmask.nick]["ip"]
+            if ipaddr and ipaddr != nickmask.host:
+                nickmask.host = ipaddr
+                return self.is_affected(nickmask, banmask)
         return False
 
     def parse_extban(self, eb):
@@ -533,6 +543,15 @@ class Bot(object):
                 if re.match("^{0}~{1}".format(ebprefix, ebletter), eb):
                     extban["negate"] = True
                 return extban
+
+    def ban_affects(self, channel, banmask):
+        if channel not in self.channels:
+            return []
+        matches = utils.irc.List()
+        for nick in self.channels[channel]["names"]:
+            if self.is_affected(nick, banmask):
+                matches.append(nick)
+        return matches
 
     def getargmodes(self):
         chanmodes = self.server["ISUPPORT"]["CHANMODES"]
