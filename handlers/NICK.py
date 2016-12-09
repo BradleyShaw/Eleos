@@ -2,7 +2,7 @@ from utils.misc import listreplace
 
 def on_NICK(bot, event):
     nick = event.source.nick
-    newnick = event.target
+    newnick = event.arguments[0]
 
     if nick == bot.nick:
         bot.nick = newnick

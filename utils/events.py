@@ -4,25 +4,34 @@ class Event(object):
 
     def __init__(self, raw):
         self.raw = raw
+        self.source = None
+        self.type = None
+        self.target = None
+        self.arguments = []
+        args = ""
+        args1 = ""
+        if " :" in raw:
+            raw, args1 = raw.split(" :", 1)
         if raw.startswith(":"):
             raw = raw.replace(":", "", 1)
-            if len(raw.split(" ", 3)) > 3:
-                self.source, self.type, self.target, args = raw.split(" ", 3)
-                if self.type == "QUIT":
-                    args = raw.split(" ", 2)[-1]
-                    self.target = None
-            else:
-                self.source, self.type, self.target = raw.split(" ", 3)
-                args = ""
+            raw = raw.split(" ")
+            self.source = raw[0]
+            self.type = raw[1]
+            if len(raw) > 2:
+                self.target = raw[2]
+            if len(raw) > 3:
+                args = " ".join(raw[3:])
             self.source = NickMask(self.source)
         else:
             self.type, args = raw.split(" ", 1)
             self.source = self.target = None
         if self.target:
-            if self.target.startswith(":"): # n!u@h NICK :nuh
-                self.target = self.target.replace(":", "", 1)
             self.target = String(self.target)
-        self.arguments = []
+        if len(args1) > 0:
+            if len(args) > 0:
+                args = "{0} :{1}".format(args, args1)
+            else:
+                args = ":{0}".format(args1)
         if args.lstrip(":").startswith("\x01") and args.endswith("\x01"):
             args = args.lstrip(":")
             args = args.strip("\x01")
@@ -44,7 +53,7 @@ class Event(object):
         if len(args) > 1:
             self.arguments.append(args[1])
 
-    def __str__(self):
+    def __repr__(self):
         tmpl = (
             "type: {type}, "
             "source: {source}, "
