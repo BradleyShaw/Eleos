@@ -546,6 +546,13 @@ class Bot(object):
                 pass
         return False
 
+    def is_banmask(self, mask):
+        if re.match("^\S+!\S+@\S+$", mask):
+            return True
+        elif self.server["ISUPPORT"].get("EXTBAN"):
+            return bool(self.parse_extban(mask))
+        return False
+
     def parse_extban(self, eb):
         ebprefix = self.server["ISUPPORT"]["EXTBAN"][0]
         if ebprefix in ".^$*+?{}[]()\\|":
