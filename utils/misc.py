@@ -1,3 +1,6 @@
+import binascii
+import socket
+
 from . import collections, irc
 
 def irccmp(str1, str2):
@@ -11,3 +14,7 @@ def listreplace(lst, old, new):
 
 def count(item, singular, plural):
     return "{0} {1}".format(item, singular if int(item) == 1 else plural)
+
+def hex2ip(hexip):
+    hexip = binascii.unhexlify(hexip)
+    return socket.inet_ntoa(hexip)

@@ -46,3 +46,4 @@ def on_JOIN(bot, event):
         bot.nicks[nick]["realname"] = event.arguments[1]
     if channel not in bot.nicks[nick]["channels"]:
         bot.nicks[nick]["channels"].append(channel)
+    bot.who(nick)

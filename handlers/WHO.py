@@ -16,8 +16,6 @@ def on_352(bot, event): # WHO
     bot.nicks[nick]["account"] = None # WHO replies don't contain the account
     bot.nicks[nick]["ip"] = None
     bot.nicks[nick]["away"] = None
-    if status.startswith("G"):
-        bot.send("WHOIS {0}".format(nick))
     if channel != "*":
         if channel not in bot.nicks[nick]["channels"]:
             bot.nicks[nick]["channels"].append(channel)
@@ -31,6 +29,7 @@ def on_352(bot, event): # WHO
             elif char == "+":
                 if nick not in bot.channels[channel]["voices"]:
                     bot.channels[channel]["voices"].append(nick)
+    bot.whois(nick)
 
 def on_354(bot, event): # WHOX
     magic = event.arguments[0]

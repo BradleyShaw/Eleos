@@ -531,10 +531,17 @@ class Bot(object):
                 pass
         nickmask = utils.events.NickMask(str(nickmask))
         if nickmask.nick in self.nicks:
-            ipaddr = self.nicks[nickmask.nick]["ip"]
+            ipaddr = self.nicks[nickmask.nick].get("ip")
             if ipaddr and ipaddr != nickmask.host:
                 nickmask.host = ipaddr
                 return self.is_affected(nickmask, banmask)
+        if (nickmask.host.startswith("gateway/web/freenode") or
+            nickmask.host.startswith("gateway/web/stuxnet")):
+            try:
+                nickmask.host = utils.misc.hex2ip(nickmask.user)
+                return self.is_affected(nickmask, banmask)
+            except:
+                pass
         return False
 
     def parse_extban(self, eb):
