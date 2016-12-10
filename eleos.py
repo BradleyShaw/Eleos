@@ -454,6 +454,8 @@ class Bot(object):
             if nickmask in self.nicks:
                 nickmask = "{0}!{1}@{2}".format(nickmask, self.nicks[nickmask]["user"],
                     self.nicks[nickmask]["host"])
+            else:
+                nickmask = "{0}!*@*".format(nickmask)
         nickmask = utils.events.NickMask(nickmask)
         if self.server["ISUPPORT"].get("EXTBAN"):
             extban = self.parse_extban(banmask)
@@ -569,6 +571,57 @@ class Bot(object):
             if self.is_affected(nick, banmask):
                 matches.append(nick)
         return matches
+
+    def banmask(self, nickmask):
+        nickmask = str(nickmask)
+        if "!" not in nickmask:
+            if nickmask in self.nicks:
+                nickmask = "{0}!{1}@{2}".format(nickmask, self.nicks[nickmask]["user"],
+                    self.nicks[nickmask]["host"])
+            else:
+                return "{0}!*@*".format(nickmask)
+        nickmask = utils.events.NickMask(nickmask)
+        nick = nickmask.nick
+        user = nickmask.user
+        host = nickmask.host
+        if host.startswith("gateway/"):
+            if "/irccloud.com/" in host:
+                uid = user[1:]
+                host = "/".join(host.split("/")[:-1])
+                return "*!*{0}@{1}".format(uid, host)
+            elif "/ip." in host:
+                host = host.split("/ip.")[1]
+                return "*!*@*{0}".format(host)
+            else:
+                host = "/".join(host.split("/")[:-1])
+                return "*!{0}@{1}".format(user, host)
+        elif host.startswith("nat/"):
+            host = "/".join(host.split("/")[:-1])
+            return "*!{0}@{1}".format(user, host)
+        elif "/" in host:
+            return "*!*@{0}".format(host)
+        else:
+            ipaddr = None
+            if nick in self.nicks:
+                ipaddr = self.nicks[nick].get("ip")
+            if ipaddr:
+                try:
+                    ipaddr = ipaddress.IPv6Network(ipaddr)
+                    ipaddr = ipaddr.supernet(new_prefix=64)
+                    host = str(ipaddr).replace(":/64", "*", 1)
+                except ValueError:
+                    host = ipaddr
+            else:
+                try:
+                    ipaddr = ipaddress.IPv6Network(host)
+                    ipaddr = ipaddr.supernet(new_prefix=64)
+                    host = str(ipaddr).replace(":/64", "*", 1)
+                except ValueError:
+                    pass
+            if user.startswith("~"):
+                return "*!*@{0}".format(host)
+            else:
+                return "*!{0}@{1}".format(user, host)
 
     def getargmodes(self):
         chanmodes = self.server["ISUPPORT"]["CHANMODES"]
