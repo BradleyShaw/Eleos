@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 from fnmatch import fnmatch
 import importlib
+import ipaddress
 import threading
 import traceback
 import socket
@@ -519,6 +520,15 @@ class Bot(object):
             banmask = utils.irc.String(str(banmask)).lower()
             if fnmatch(nickmask, banmask):
                 return True
+            try:
+                ipaddr = utils.events.NickMask(nickmask).host
+                ipaddr = ipaddress.ip_address(ipaddr)
+                banip = utils.events.NickMask(banmask).host
+                banip = ipaddress.ip_network(banip)
+                if ipaddr in banip:
+                    return True
+            except ValueError:
+                pass
         nickmask = utils.events.NickMask(str(nickmask))
         if nickmask.nick in self.nicks:
             ipaddr = self.nicks[nickmask.nick]["ip"]
