@@ -6,6 +6,7 @@ import threading
 import traceback
 import socket
 import queue
+import copy
 import glob
 import json
 import time
@@ -218,7 +219,7 @@ class Bot(object):
         return flag in self.get_user_flags(user, global_only, channel)
 
     def get_channel_config(self, channel, key=None, default=None):
-        config = self.config["channels"].get("default", {})
+        config = copy.deepcopy(self.config["channels"].get("default", {}))
         config.update(self.config["channels"].get(channel, {}))
         if key:
             return config.get(key, default)
