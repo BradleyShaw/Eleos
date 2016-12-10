@@ -40,7 +40,10 @@ class Event(object):
             if self.type == "PRIVMSG":
                 if args.startswith("ACTION"):
                     self.type = "ACTION"
-                    args = args.replace("ACTION", "", 1).lstrip(" ")
+                    args = args.replace("ACTION", "", 1)
+                    if args.startswith(" "):
+                        args = args.replace(" ", "", 1)
+                    args = ":{0}".format(args)
                 else:
                     self.type = "CTCP"
             elif self.type == "NOTICE":
