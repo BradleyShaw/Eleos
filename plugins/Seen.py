@@ -185,7 +185,8 @@ class Seen(plugins.Plugin):
     def on_part(self, bot, event):
         partmsg = None
         if len(event.arguments) > 0:
-            partmsg = event.arguments[0]
+            if len(event.arguments[0]) > 0:
+                partmsg = event.arguments[0]
         self.add_activity(
             event="part",
             network=bot.name,
@@ -198,8 +199,9 @@ class Seen(plugins.Plugin):
     @hook.event(type="QUIT")
     def on_quit(self, bot, event):
         quitmsg = None
-        if len(event.arguments[0]) > 0:
-            quitmsg = event.arguments[0]
+        if len(event.arguments) > 0:
+            if len(event.arguments[0]) > 0:
+                quitmsg = event.arguments[0]
         self.add_activity(
             event="quit",
             network=bot.name,
