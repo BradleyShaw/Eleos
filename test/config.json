@@ -1,0 +1,20 @@
+{
+    "Stuxnet": {
+        "host": "irc.stuxnet.xyz",
+        "port": 6697,
+        "ssl": true,
+        "nick": "Eleos-CI-VERSION",
+        "ident": "Eleos",
+        "realname": "Eleos - https://github.com/IndigoTiger/Eleos",
+        "sasl": false,
+        "users": {},
+        "channels": {
+            "default": {
+                "autojoin": true,
+                "autorejoin": false,
+                "prefix": ""
+            },
+            "#Eleos": {}
+        }
+    }
+}

@@ -1,0 +1,25 @@
+before_script:
+  - pip install -r requirements.txt
+  - cp test/Test.py plugins/
+  - cp test/config.json ./
+  - sed -i "s/VERSION/$(python -V | awk '{ print $2 }' | sed 's/\./-/g')/" config.json
+
+.test: &test
+  script:
+    - python eleos.py test/config.json
+
+test:3.3:
+  <<: *test
+  image: python:3.3
+
+test:3.4:
+  <<: *test
+  image: python:3.4
+
+test:3.5:
+  <<: *test
+  image: python:3.5
+
+test:3.6:
+  <<: *test
+  image: python:3.6-rc
