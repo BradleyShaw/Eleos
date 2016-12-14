@@ -5,7 +5,7 @@
         "ssl": true,
         "nick": "Eleos-CI-VERSION",
         "ident": "Eleos",
-        "realname": "Eleos - https://github.com/IndigoTiger/Eleos",
+        "realname": "Eleos CI Test",
         "sasl": false,
         "users": {},
         "channels": {
