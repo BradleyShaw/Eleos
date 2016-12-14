@@ -2,7 +2,7 @@ before_script:
   - pip install -r requirements.txt
   - cp test/Test.py plugins/
   - cp test/config.json ./
-  - sed -i "s/VERSION/$(python -V | awk '{ print $2 }' | sed 's/\./-/g')/" config.json
+  - sed -i "s/VERSION/$(python -V 2>&1 | awk '{ print $2 }' | sed 's/\./-/g')/" config.json
 
 .test: &test
   script:
