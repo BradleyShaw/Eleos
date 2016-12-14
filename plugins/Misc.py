@@ -110,6 +110,6 @@ class Misc(plugins.Plugin):
 
         Returns a link to the bot's source.
         """
-        bot.reply(event, "https://github.com/IndigoTiger/Eleos")
+        bot.reply(event, "https://git.intrpt.net/IndigoTiger/Eleos")
 
 Class = Misc
