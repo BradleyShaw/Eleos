@@ -472,7 +472,7 @@ class Bot(object):
                     account = utils.irc.String(account).lower()
                 if negate and not account:
                     return True
-                elif banmask:
+                elif account and banmask:
                     if fnmatch(account, banmask):
                         if not negate:
                             return True
