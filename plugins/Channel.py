@@ -188,7 +188,7 @@ class Channel(plugins.Plugin):
                     and not nick.startswith(":")):
                     bannicks.append(nick)
                 elif nick not in bot.channels[channel]["names"] or nick.startswith(":"):
-                    kickmsg = " ".join(nicks[len(kicknicks):])
+                    kickmsg = " ".join(nicks[len(bannicks):])
                     if kickmsg.startswith(":"):
                         kickmsg = kickmsg.replace(":", "", 1)
                     break
