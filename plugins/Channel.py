@@ -183,7 +183,8 @@ class Channel(plugins.Plugin):
                 bot.reply(event, "Error: I'm not in {0}.".format(channel))
                 return
             for nick in nicks:
-                if (nick in bot.channels[channel]["names"]
+                if ((nick in bot.channels[channel]["names"]
+                    or bot.is_banmask(nick))
                     and nick not in bannicks
                     and not nick.startswith(":")):
                     bannicks.append(nick)
