@@ -8,14 +8,14 @@ before_script:
   script:
     - python eleos.py config.json
 
-test:3.3:
+python-3.3:
   <<: *test
   image: python:3.3
 
-test:3.4:
+python-3.4:
   <<: *test
   image: python:3.4
 
-test:3.5:
+python-3.5:
   <<: *test
   image: python:3.5
