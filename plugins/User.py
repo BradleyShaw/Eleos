@@ -27,10 +27,16 @@ class User(plugins.Plugin):
             if not user:
                 bot.reply(event, "I don't recognise you.")
         else:
-            user = args
+            user = self.space_split(args)[0]
         account = bot.config["users"].get(user)
         if account:
-            bot.reply(event, "Flags for {0}: {1}".format(user, account["flags"]))
+            globalflags =bot.get_user_flags(user)
+            if bot.is_channel(event.target):
+                chanflags = bot.get_user_flags(user, channel=event.target)
+                bot.reply(event, "Flags for {0}: {1}: {2} | Global: {3}".format(
+                            user, event.target, chanflags, globalflags))
+            else:
+                bot.reply(event, "Flags for {0}: {1}".format(user, globalflags))
         else:
             bot.reply(event, "There is no such user.")
 
