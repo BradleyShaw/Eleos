@@ -1,6 +1,6 @@
 {
     "Stuxnet": {
-        "host": "irc.stuxnet.xyz",
+        "host": "chat.freenode.net",
         "port": 6697,
         "ssl": true,
         "nick": "Eleos-CI-VERSION",
@@ -14,7 +14,7 @@
                 "autorejoin": false,
                 "prefix": ""
             },
-            "#Eleos": {}
+            "##Eleos": {}
         }
     }
 }
