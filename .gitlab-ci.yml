@@ -5,6 +5,8 @@ before_script:
   - sed -i "s/VERSION/$(python -V 2>&1 | awk '{ print $2 }' | sed 's/\./-/g')/" config.json
 
 .test: &test
+  only:
+    - master
   script:
     - python eleos.py config.json
 
