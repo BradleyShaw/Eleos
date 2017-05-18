@@ -26,6 +26,7 @@ class User(plugins.Plugin):
             user = bot.get_user_by_hostmask(event.source)
             if not user:
                 bot.reply(event, "I don't recognise you.")
+                return
         else:
             user = self.space_split(args)[0]
         account = bot.config["users"].get(user)
