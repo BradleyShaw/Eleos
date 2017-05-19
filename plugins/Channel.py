@@ -343,6 +343,179 @@ class Channel(plugins.Plugin):
         else:
             if channel not in bot.channels:
                 bot.reply(event, "Error: I'm not in {0}.".format(channel))
+                return
+            if len(setmodes) == 0:
+                return
+            if not bot.is_op(channel, bot.nick):
+                setmodes.append("-o {0}".format(bot.nick))
+            if bot.request_op(channel):
+                for mode in bot.unsplit_modes(setmodes):
+                    bot.mode(channel, mode)
+
+    @hook.command(flags="o")
+    def op(self, bot, event, args):
+        """[<channel>] [<nick>...]
+
+        Ops <nick> (or yourself if no nick is specified) in <channel>. <channel>
+        is only necessary if the command isn't sent in the channel itself.
+        """
+        try:
+            args = self.space_split(args)
+            if event.target == bot.nick:
+                channel = args[0]
+                if len(args) > 1:
+                    nicks = args[1:]
+                else:
+                    nicks = [event.source.nick]
+            elif len(args) > 0:
+                if bot.is_channel(args[0]):
+                    channel = args[0]
+                    if len(args) > 1:
+                        nicks = args[1:]
+                    else:
+                        nicks = [event.source.nick]
+                else:
+                    channel = event.target
+                    nicks = args
+            else:
+                channel = event.target
+                nicks = [event.source.nick]
+        except IndexError:
+            bot.reply(event, self.get_help("op"))
+        else:
+            if channel not in bot.channels:
+                bot.reply(event, "Error: I'm not in {0}.".format(channel))
+                return
+            setmodes = ["+o {0}".format(nick) for nick in nicks if nick != bot.nick]
+            if len(setmodes) == 0:
+                return
+            if not bot.is_op(channel, bot.nick):
+                setmodes.append("-o {0}".format(bot.nick))
+            if bot.request_op(channel):
+                for mode in bot.unsplit_modes(setmodes):
+                    bot.mode(channel, mode)
+
+    @hook.command(flags="o")
+    def deop(self, bot, event, args):
+        """[<channel>] [<nick>...]
+
+        Deops <nick> (or yourself if no nick is specified) in <channel>. <channel>
+        is only necessary if the command isn't sent in the channel itself.
+        """
+        try:
+            args = self.space_split(args)
+            if event.target == bot.nick:
+                channel = args[0]
+                if len(args) > 1:
+                    nicks = args[1:]
+                else:
+                    nicks = [event.source.nick]
+            elif len(args) > 0:
+                if bot.is_channel(args[0]):
+                    channel = args[0]
+                    if len(args) > 1:
+                        nicks = args[1:]
+                    else:
+                        nicks = [event.source.nick]
+                else:
+                    channel = event.target
+                    nicks = args
+            else:
+                channel = event.target
+                nicks = [event.source.nick]
+        except IndexError:
+            bot.reply(event, self.get_help("deop"))
+        else:
+            if channel not in bot.channels:
+                bot.reply(event, "Error: I'm not in {0}.".format(channel))
+                return
+            setmodes = ["-o {0}".format(nick) for nick in nicks if nick != bot.nick]
+            if len(setmodes) == 0:
+                return
+            if not bot.is_op(channel, bot.nick):
+                setmodes.append("-o {0}".format(bot.nick))
+            if bot.request_op(channel):
+                for mode in bot.unsplit_modes(setmodes):
+                    bot.mode(channel, mode)
+
+    @hook.command(flags="o")
+    def voice(self, bot, event, args):
+        """[<channel>] [<nick>...]
+
+        Voices <nick> (or yourself if no nick is specified) in <channel>. <channel>
+        is only necessary if the command isn't sent in the channel itself.
+        """
+        try:
+            args = self.space_split(args)
+            if event.target == bot.nick:
+                channel = args[0]
+                if len(args) > 1:
+                    nicks = args[1:]
+                else:
+                    nicks = [event.source.nick]
+            elif len(args) > 0:
+                if bot.is_channel(args[0]):
+                    channel = args[0]
+                    if len(args) > 1:
+                        nicks = args[1:]
+                    else:
+                        nicks = [event.source.nick]
+                else:
+                    channel = event.target
+                    nicks = args
+            else:
+                channel = event.target
+                nicks = [event.source.nick]
+        except IndexError:
+            bot.reply(event, self.get_help("voice"))
+        else:
+            if channel not in bot.channels:
+                bot.reply(event, "Error: I'm not in {0}.".format(channel))
+                return
+            setmodes = ["+v {0}".format(nick) for nick in nicks if nick != bot.nick]
+            if len(setmodes) == 0:
+                return
+            if not bot.is_op(channel, bot.nick):
+                setmodes.append("-o {0}".format(bot.nick))
+            if bot.request_op(channel):
+                for mode in bot.unsplit_modes(setmodes):
+                    bot.mode(channel, mode)
+
+    @hook.command(flags="o")
+    def devoice(self, bot, event, args):
+        """[<channel>] [<nick>...]
+
+        Devoices <nick> (or yourself if no nick is specified) in <channel>. <channel>
+        is only necessary if the command isn't sent in the channel itself.
+        """
+        try:
+            args = self.space_split(args)
+            if event.target == bot.nick:
+                channel = args[0]
+                if len(args) > 1:
+                    nicks = args[1:]
+                else:
+                    nicks = [event.source.nick]
+            elif len(args) > 0:
+                if bot.is_channel(args[0]):
+                    channel = args[0]
+                    if len(args) > 1:
+                        nicks = args[1:]
+                    else:
+                        nicks = [event.source.nick]
+                else:
+                    channel = event.target
+                    nicks = args
+            else:
+                channel = event.target
+                nicks = [event.source.nick]
+        except IndexError:
+            bot.reply(event, self.get_help("devoice"))
+        else:
+            if channel not in bot.channels:
+                bot.reply(event, "Error: I'm not in {0}.".format(channel))
+                return
+            setmodes = ["-v {0}".format(nick) for nick in nicks if nick != bot.nick]
             if len(setmodes) == 0:
                 return
             if not bot.is_op(channel, bot.nick):
