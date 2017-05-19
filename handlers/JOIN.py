@@ -11,6 +11,8 @@ def on_JOIN(bot, event):
         bot.channels[channel]["names"] = List()
         bot.channels[channel]["bans"] = List()
         bot.channels[channel]["quiets"] = List()
+        bot.channels[channel]["excepts"] = None
+        bot.channels[channel]["invites"] = None
         bot.channels[channel]["ops"] = List()
         bot.channels[channel]["halfops"] = List()
         bot.channels[channel]["voices"] = List()
@@ -18,7 +20,9 @@ def on_JOIN(bot, event):
         bot.channels[channel]["syncing"] = {
             "names": False,
             "banlist": False,
-            "quietlist": False
+            "quietlist": False,
+            "exceptlist": False,
+            "invitelist": False
         }
         bot.log.debug("Syncing users for %s", channel)
         bot.who(channel)

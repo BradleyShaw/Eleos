@@ -33,20 +33,42 @@ def on_MODE(bot, event):
                     mask = mode.split()[1]
                     if mask in bot.channels[channel]["quiets"]:
                         bot.channels[channel]["quiets"].remove(mask)
+            elif mode.startswith("+e"):
+                mask = mode.split()[1]
+                if mask not in bot.channels[channel]["excepts"]:
+                    bot.channels[channel]["excepts"].append(mask)
+            elif mode.startswith("-e"):
+                mask = mode.split()[1]
+                if mask in bot.channels[channel]["excepts"]:
+                    bot.channels[channel]["excepts"].remove(mask)
+            elif mode.startswith("+I"):
+                mask = mode.split()[1]
+                if mask not in bot.channels[channel]["invites"]:
+                    bot.channels[channel]["invites"].append(mask)
+            elif mode.startswith("-I"):
+                mask = mode.split()[1]
+                if mask in bot.channels[channel]["invites"]:
+                    bot.channels[channel]["invites"].remove(mask)
             elif (mode.startswith("+o") or
                   mode.startswith("+a") or
                   mode.startswith("+Y")):
                 nick = mode.split()[1]
                 if nick not in bot.channels[channel]["ops"]:
                     bot.channels[channel]["ops"].append(nick)
-                if nick == bot.nick and channel in bot.opqueue:
-                    bot.opqueue[channel].put(True)
+                if nick == bot.nick:
+                    bot.log.debug("Syncing excepts and invites for %s", channel)
+                    bot.mode(channel, "eI")
+                    if channel in bot.opqueue:
+                        bot.opqueue[channel].put(True)
             elif (mode.startswith("-o") or
                   mode.startswith("-a") or
                   mode.startswith("-Y")):
                 nick = mode.split()[1]
                 if nick in bot.channels[channel]["ops"]:
                     bot.channels[channel]["ops"].remove(nick)
+                if nick == bot.nick:
+                    bot.channels[channel]["excepts"] = None
+                    bot.channels[channel]["invites"] = None
             elif mode.startswith("+h"):
                 nick = mode.split()[1]
                 if nick not in bot.channels[channel]["halfops"]:

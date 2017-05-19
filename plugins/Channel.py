@@ -1,3 +1,5 @@
+from time import sleep
+
 import utils.plugins as plugins
 import utils.hook as hook
 
@@ -95,9 +97,20 @@ class Channel(plugins.Plugin):
                     setmodes.append("-v {0}".format(nick))
             if len(setmodes) == 0:
                 return
-            if not bot.is_op(channel, bot.nick):
-                setmodes.append("-o {0}".format(bot.nick))
+            already_op = bot.is_op(channel, bot.nick)
             if bot.request_op(channel):
+                while bot.channels[channel]["invites"] is None:
+                    sleep(0.01)
+                for exceptmask in bot.channels[channel]["excepts"]:
+                    for nick in bot.ban_affects(channel, exceptmask):
+                        if nick in affected:
+                            setmodes.append("-e {0}".format(exceptmask))
+                for invite in bot.channels[channel]["invites"]:
+                    for nick in bot.ban_affects(channel, invite):
+                        if nick in affected:
+                            setmodes.append("-I {0}".format(invite))
+                if not already_op:
+                    setmodes.append("-o {0}".format(bot.nick))
                 for mode in bot.unsplit_modes(setmodes):
                     bot.mode(channel, mode)
 
@@ -213,6 +226,16 @@ class Channel(plugins.Plugin):
                 return
             already_op = bot.is_op(channel, bot.nick)
             if bot.request_op(channel):
+                while bot.channels[channel]["invites"] is None:
+                    sleep(0.01)
+                for exceptmask in bot.channels[channel]["excepts"]:
+                    for nick in bot.ban_affects(channel, exceptmask):
+                        if nick in affected:
+                            setmodes.append("-e {0}".format(exceptmask))
+                for invite in bot.channels[channel]["invites"]:
+                    for nick in bot.ban_affects(channel, invite):
+                        if nick in affected:
+                            setmodes.append("-I {0}".format(invite))
                 for mode in bot.unsplit_modes(setmodes):
                     bot.mode(channel, mode)
                 for nick in affected:
@@ -265,9 +288,16 @@ class Channel(plugins.Plugin):
                     setmodes.append("-v {0}".format(nick))
             if len(setmodes) == 0:
                 return
-            if not bot.is_op(channel, bot.nick):
-                setmodes.append("-o {0}".format(bot.nick))
+            already_op = bot.is_op(channel, bot.nick)
             if bot.request_op(channel):
+                while bot.channels[channel]["invites"] is None:
+                    sleep(0.01)
+                for exceptmask in bot.channels[channel]["excepts"]:
+                    for nick in bot.ban_affects(channel, exceptmask):
+                        if nick in affected:
+                            setmodes.append("-e {0}".format(exceptmask))
+                if not already_op:
+                    setmodes.append("-o {0}".format(bot.nick))
                 for mode in bot.unsplit_modes(setmodes):
                     bot.mode(channel, mode)
 
