@@ -85,4 +85,15 @@ class Admin(plugins.Plugin):
         else:
             bot.join(args[0], args[1])
 
+    @hook.command(flags="a", global_only=True)
+    def raw(self, bot, event, args):
+        """<command>
+
+        Sends <command> to the IRC server.
+        """
+        if len(self.space_split(args)) == 0:
+            bot.reply(event, self.get_help("raw"))
+            return
+        bot.send(args)
+
 Class = Admin
