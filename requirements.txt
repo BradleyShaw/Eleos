@@ -1,3 +1,4 @@
 six
 hurry.filesize
 psutil
+requests

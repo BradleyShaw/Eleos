@@ -22,6 +22,7 @@ import utils.hook
 import utils.misc
 import utils.irc
 import utils.log
+import utils.web
 
 class BotManager(object):
 
@@ -328,8 +329,12 @@ class Bot(object):
             "ignore"))
         msgs = [msg[i:i+maxlen].decode("UTF-8", "ignore")
             for i in range(0, len(msg), maxlen)]
-        for line in msgs:
-            sendfunc("{0} {1} :{2}".format(cmd, target, line))
+        if len(msgs) > 3:
+            paste = utils.web.paste(msg.decode("UTF-8", "ignore"))
+            sendfunc("{0} {1} :{2}".format(cmd, target, paste))
+        else:
+            for line in msgs:
+                sendfunc("{0} {1} :{2}".format(cmd, target, line))
 
     def reply(self, event, msg):
         if event.target == self.nick:

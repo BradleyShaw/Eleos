@@ -351,6 +351,186 @@ class Channel(plugins.Plugin):
                     bot.mode(channel, mode)
 
     @hook.command(flags="o")
+    def exempt(self, bot, event, args):
+        """[<channel>] <nick|hostmask> [<nick|hostmask>...]
+
+        Exempts <nick> in <channel>. <channel> is only necessary if the command
+        isn't sent in the channel itself.
+        """
+        setmodes = []
+        try:
+            args = self.space_split(args)
+            if event.target == bot.nick:
+                channel = args[0]
+                nicks = args[1:]
+            else:
+                if bot.is_channel(args[0]):
+                    channel = args[0]
+                    nicks = args[1:]
+                else:
+                    channel = event.target
+                    nicks = args
+        except IndexError:
+            bot.reply(event, self.get_help("exempt"))
+        else:
+            if channel not in bot.channels:
+                bot.reply(event, "Error: I'm not in {0}.".format(channel))
+                return
+            for nick in nicks:
+                if bot.is_banmask(nick):
+                    banmask = nick
+                else:
+                    banmask = bot.banmask(nick)
+                setmodes.append("+e {0}".format(banmask))
+            if len(setmodes) == 0:
+                return
+            if not bot.is_op(channel, bot.nick):
+                setmodes.append("-o {0}".format(bot.nick))
+            if bot.request_op(channel):
+                for mode in bot.unsplit_modes(setmodes):
+                    bot.mode(channel, mode)
+
+    @hook.command(flags="o")
+    def unexempt(self, bot, event, args):
+        """[<channel>] [<nick|hostmask>...]
+
+        Unexempts <nick> (or yourself if no nick is specified) in <channel>.
+        <channel> is only necessary if the command isn't sent in the channel
+        itself.
+        """
+        setmodes = []
+        try:
+            args = self.space_split(args)
+            if event.target == bot.nick:
+                channel = args[0]
+                if len(args) > 1:
+                    nicks = args[1:]
+                else:
+                    nicks = [event.source.nick]
+            else:
+                if len(args) > 0:
+                    if bot.is_channel(args[0]):
+                        channel = args[0]
+                        if len(args) > 1:
+                            nicks = args[1:]
+                        else:
+                            nicks = [event.source.nick]
+                    else:
+                        channel = event.target
+                        nicks = args
+                else:
+                    channel = event.target
+                    nicks = [event.source.nick]
+        except IndexError:
+            bot.reply(event, self.get_help("unexempt"))
+        else:
+            if channel not in bot.channels:
+                bot.reply("Error: I'm not in {0}.".format(channel))
+                return
+            already_op = bot.is_op(channel, bot.nick)
+            if bot.request_op(channel):
+                while bot.channels[channel]["excepts"] is None:
+                    sleep(0.01)
+                for nick in nicks:
+                    for bmask in bot.channels[channel]["excepts"]:
+                        if bot.is_affected(nick, bmask):
+                            setmodes.append("-e {0}".format(bmask))
+                if not already_op:
+                    setmodes.append("-o {0}".format(bot.nick))
+                for mode in bot.unsplit_modes(setmodes):
+                    bot.mode(channel, mode)
+
+    @hook.command(flags="o")
+    def invex(self, bot, event, args):
+        """[<channel>] <nick|hostmask> [<nick|hostmask>...]
+
+        Invexes <nick> in <channel>. <channel> is only necessary if the command
+        isn't sent in the channel itself.
+        """
+        setmodes = []
+        try:
+            args = self.space_split(args)
+            if event.target == bot.nick:
+                channel = args[0]
+                nicks = args[1:]
+            else:
+                if bot.is_channel(args[0]):
+                    channel = args[0]
+                    nicks = args[1:]
+                else:
+                    channel = event.target
+                    nicks = args
+        except IndexError:
+            bot.reply(event, self.get_help("invex"))
+        else:
+            if channel not in bot.channels:
+                bot.reply(event, "Error: I'm not in {0}.".format(channel))
+                return
+            for nick in nicks:
+                if bot.is_banmask(nick):
+                    banmask = nick
+                else:
+                    banmask = bot.banmask(nick)
+                setmodes.append("+I {0}".format(banmask))
+            if len(setmodes) == 0:
+                return
+            if not bot.is_op(channel, bot.nick):
+                setmodes.append("-o {0}".format(bot.nick))
+            if bot.request_op(channel):
+                for mode in bot.unsplit_modes(setmodes):
+                    bot.mode(channel, mode)
+
+    @hook.command(flags="o")
+    def uninvex(self, bot, event, args):
+        """[<channel>] [<nick|hostmask>...]
+
+        Uninvexes <nick> (or yourself if no nick is specified) in <channel>.
+        <channel> is only necessary if the command isn't sent in the channel
+        itself.
+        """
+        setmodes = []
+        try:
+            args = self.space_split(args)
+            if event.target == bot.nick:
+                channel = args[0]
+                if len(args) > 1:
+                    nicks = args[1:]
+                else:
+                    nicks = [event.source.nick]
+            else:
+                if len(args) > 0:
+                    if bot.is_channel(args[0]):
+                        channel = args[0]
+                        if len(args) > 1:
+                            nicks = args[1:]
+                        else:
+                            nicks = [event.source.nick]
+                    else:
+                        channel = event.target
+                        nicks = args
+                else:
+                    channel = event.target
+                    nicks = [event.source.nick]
+        except IndexError:
+            bot.reply(event, self.get_help("uninvex"))
+        else:
+            if channel not in bot.channels:
+                bot.reply("Error: I'm not in {0}.".format(channel))
+                return
+            already_op = bot.is_op(channel, bot.nick)
+            if bot.request_op(channel):
+                while bot.channels[channel]["invites"] is None:
+                    sleep(0.01)
+                for nick in nicks:
+                    for bmask in bot.channels[channel]["invites"]:
+                        if bot.is_affected(nick, bmask):
+                            setmodes.append("-I {0}".format(bmask))
+                if not already_op:
+                    setmodes.append("-o {0}".format(bot.nick))
+                for mode in bot.unsplit_modes(setmodes):
+                    bot.mode(channel, mode)
+
+    @hook.command(flags="o")
     def mode(self, bot, event, args):
         """[<channel>] <modes>
 
@@ -416,7 +596,7 @@ class Channel(plugins.Plugin):
             if channel not in bot.channels:
                 bot.reply(event, "Error: I'm not in {0}.".format(channel))
                 return
-            setmodes = ["+o {0}".format(nick) for nick in nicks if nick != bot.nick]
+            setmodes = ["+o {0}".format(nick) for nick in nicks]
             if len(setmodes) == 0:
                 return
             if not bot.is_op(channel, bot.nick):
@@ -459,7 +639,7 @@ class Channel(plugins.Plugin):
             if channel not in bot.channels:
                 bot.reply(event, "Error: I'm not in {0}.".format(channel))
                 return
-            setmodes = ["-o {0}".format(nick) for nick in nicks if nick != bot.nick]
+            setmodes = ["-o {0}".format(nick) for nick in nicks]
             if len(setmodes) == 0:
                 return
             if not bot.is_op(channel, bot.nick):
@@ -502,7 +682,7 @@ class Channel(plugins.Plugin):
             if channel not in bot.channels:
                 bot.reply(event, "Error: I'm not in {0}.".format(channel))
                 return
-            setmodes = ["+v {0}".format(nick) for nick in nicks if nick != bot.nick]
+            setmodes = ["+v {0}".format(nick) for nick in nicks]
             if len(setmodes) == 0:
                 return
             if not bot.is_op(channel, bot.nick):
@@ -545,7 +725,7 @@ class Channel(plugins.Plugin):
             if channel not in bot.channels:
                 bot.reply(event, "Error: I'm not in {0}.".format(channel))
                 return
-            setmodes = ["-v {0}".format(nick) for nick in nicks if nick != bot.nick]
+            setmodes = ["-v {0}".format(nick) for nick in nicks]
             if len(setmodes) == 0:
                 return
             if not bot.is_op(channel, bot.nick):
