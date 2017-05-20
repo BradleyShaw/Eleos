@@ -9,17 +9,9 @@
     "sasl": true,
     "username": "",
     "password": "",
-    "users": {
-        "<USERNAME>": {
-            "hostmasks": [
-                "YOUR!HOST@MASK"
-            ],
-            "accounts": [
-                "YOURACCOUNT"
-            ],
-            "flags": "a"
-        }
-    },
+    "flags": {
+      "<ACCOUNT>": "<FLAGS>"
+    }
     "channels": {
         "default": {
             "autojoin": true,

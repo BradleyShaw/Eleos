@@ -204,40 +204,22 @@ class Bot(object):
         t.daemon = True
         t.start()
 
-    def get_user_by_hostmask(self, hmask):
-        hmask = str(utils.irc.String(str(hmask)).lower())
-        for user, cfg in self.config["users"].items():
-            for hm in cfg.get("hostmasks", []):
-                hm = str(utils.irc.String(hm).lower())
-                if fnmatch(hmask, hm):
-                    return user
-        nick = utils.events.NickMask(hmask).nick
-        if nick in self.nicks:
-            if self.nicks[nick]["account"]:
-                return self.get_user_by_account(self.nicks[nick]["account"])
+    def get_account(self, hostmask):
+        hmask = utils.events.NickMask(str(hostmask))
+        if hmask.nick in self.nicks:
+            return self.nicks[hmask.nick]["account"]
 
-    def get_user_by_account(self, account):
-        for user, cfg in self.config["users"].items():
-            for acc in cfg.get("accounts", []):
-                if utils.misc.irccmp(account, acc):
-                    return user
-
-    def get_user_flags(self, username, global_only=False, channel=None):
-        if username not in self.config["users"]:
-            return ""
-        flags = self.config["users"][username].get("flags", "")
+    def get_flags(self, username, global_only=False, channel=None):
+        flags = self.config["flags"].get(username, "")
         if channel and not global_only:
-            if channel in self.config["channels"]:
-                # This can result in duplicates, but who the fuck cares?!
-                flags += self.config["channels"][channel].get("flags", {}).get(
-                    username, "")
+            flags += self.get_channel_config(channel, "flags", {}).get(username, "")
         return flags
 
     def has_flag(self, hmask, flag, global_only=False, channel=None):
-        user = self.get_user_by_hostmask(hmask)
+        user = self.get_account(hmask)
         if not user:
             return False
-        return flag in self.get_user_flags(user, global_only, channel)
+        return flag in self.get_flags(user, global_only, channel)
 
     def get_channel_config(self, channel, key=None, default=None):
         config = copy.deepcopy(self.config["channels"].get("default", {}))
@@ -517,7 +499,7 @@ class Bot(object):
                 banmask = banmask.lower()
             negate = extban.get("negate", False)
             if letter == "a":
-                account = self.nicks.get(nickmask.nick, {}).get("account")
+                account = self.get_account(nickmask)
                 if account:
                     account = utils.irc.String(account).lower()
                 if negate and not account:
