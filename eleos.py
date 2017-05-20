@@ -673,7 +673,7 @@ class Bot(object):
         prefix = list(self.server["ISUPPORT"]["PREFIX"].keys())
         return {
             "set": "".join(chanmodes[0:3] + prefix),
-            "unset": "".join(chanmodes[0:2] + prefix)
+            "unset": "".join(list(chanmodes[0]) + prefix)
         }
 
     def split_modes(self, modes):

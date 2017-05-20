@@ -85,6 +85,14 @@ def on_MODE(bot, event):
                 nick = mode.split()[1]
                 if nick in bot.channels[channel]["voices"]:
                     bot.channels[channel]["voices"].remove(nick)
+            elif mode.startswith("+k"):
+                key = mode.split()[1]
+                if channel in bot.config["channels"]:
+                    bot.config["channels"][channel]["key"] = key
+            elif mode.startswith("-k"):
+                if channel in bot.config["channels"]:
+                    if "key" in bot.config["channels"][channel]:
+                        del(bot.config["channels"][channel]["key"])
             else:
                 splitmode = mode.split(" ", 1)
                 for m in copy.deepcopy(bot.channels[channel]["modes"]):
