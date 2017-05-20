@@ -23,3 +23,7 @@ def on_NOTICE(bot, event):
             channel = msg.split(" ")[1].strip("\x02")
             if channel in bot.opqueue:
                 bot.opqueue[channel].put(False)
+        elif msg.startswith("Unbanned \x02{0}\x02 on".format(bot.nick)):
+            channel = msg.split(" ")[3].strip("\x02")
+            if bot.get_channel_config(channel, "autorejoin"):
+                bot.join(channel, bot.get_channel_config(channel, "key"))

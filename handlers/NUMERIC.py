@@ -38,3 +38,8 @@ def on_437(bot, event):
     if not bot.connected:
         bot.nick += "_"
         bot.send("NICK {0}".format(bot.nick))
+
+def on_474(bot, event):
+    channel = event.arguments[0]
+    if bot.get_channel_config(channel, "autorejoin"):
+        bot.msg("ChanServ", "UNBAN {0}".format(channel))
