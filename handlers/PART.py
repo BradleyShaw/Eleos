@@ -27,7 +27,7 @@ def on_PART(bot, event):
             bot.channels[channel]["names"].remove(nick)
         for prefix in bot.channels[channel]["prefixes"]:
             if nick in bot.channels[channel]["prefixes"][prefix]:
-                bot.channels[channel]["prefixes"][prefix].remove(nic)
+                bot.channels[channel]["prefixes"][prefix].remove(nick)
 
     if nick in bot.nicks:
         if channel in bot.nicks[nick]["channels"]:
