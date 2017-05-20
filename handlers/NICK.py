@@ -15,8 +15,6 @@ def on_NICK(bot, event):
         if nick in bot.channels[channel]["names"]:
             listreplace(bot.channels[channel]["names"], nick, newnick)
 
-        if nick in bot.channels[channel]["ops"]:
-            listreplace(bot.channels[channel]["ops"], nick, newnick)
-
-        if nick in bot.channels[channel]["voices"]:
-            listreplace(bot.channels[channel]["voices"], nick, newnick)
+        for prefix in bot.channels[channel]["prefixes"]:
+            if nick in bot.channels[channel]["prefixes"][prefix]:
+                bot.channels[channel]["prefixes"][prefix].remove(nick))
