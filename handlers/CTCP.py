@@ -21,4 +21,4 @@ def on_CTCP(bot, event):
         now = datetime.datetime.now()
         bot.ctcpreply(event, ctcptype, now.strftime("%a %b %d %H:%M:%S %Y"))
     elif ctcptype == "SOURCE":
-        bot.ctcpreply(event, ctcptype, "https://git.intrpt.net/IndigoTiger/Eleos")
+        bot.ctcpreply(event, ctcptype, "https://git.intrpt.net/bs/Eleos")

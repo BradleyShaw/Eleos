@@ -110,6 +110,40 @@ class Misc(plugins.Plugin):
 
         Returns a link to the bot's source.
         """
-        bot.reply(event, "https://git.intrpt.net/IndigoTiger/Eleos")
+        bot.reply(event, "https://git.intrpt.net/bs/Eleos")
+
+    @hook.command
+    def hm(self, bot, event, args):
+        """[<nick>]
+
+        Returns the hostmask of <nick> (or yourself if no nick is specified).
+        """
+        args = self.space_split(args)
+        if len(args) > 0:
+            nick = args[0]
+            if nick not in bot.nicks:
+                bot.reply(event, "Error: No such user.")
+                return
+            for user in bot.nicks:
+                if user == nick:
+                    nick = user
+                    break
+            hmask = "{nick}!{user}@{host}".format(nick=nick, **bot.nicks[nick])
+            bot.reply(event, hmask)
+        else:
+            bot.reply(event, event.source)
+
+    @hook.command
+    def bm(self, bot, event, args):
+        """[<nick|hostmask>]
+
+        Returns a banmask for <nick> (or yourself if no nick is specified).
+        """
+        args = self.space_split(args)
+        if len(args) > 0:
+            nick = args[0]
+        else:
+            nick = event.source
+        bot.reply(event, bot.banmask(nick))
 
 Class = Misc
