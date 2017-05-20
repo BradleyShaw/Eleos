@@ -24,10 +24,9 @@ def on_KICK(bot, event):
     if channel in bot.channels:
         if target in bot.channels[channel]["names"]:
             bot.channels[channel]["names"].remove(target)
-        if target in bot.channels[channel]["ops"]:
-            bot.channels[channel]["ops"].remove(target)
-        if target in bot.channels[channel]["voices"]:
-            bot.channels[channel]["voices"].remove(target)
+        for prefix in bot.channels[channel]["prefixes"]:
+            if nick in bot.channels[channel]["prefixes"][prefix]:
+                bot.channels[channel]["prefixes"][prefix].remove(nick)
 
     if target in bot.nicks:
         if channel in bot.nicks[target]["channels"]:
