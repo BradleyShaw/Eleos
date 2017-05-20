@@ -25,5 +25,7 @@ def on_NOTICE(bot, event):
                 bot.opqueue[channel].put(False)
         elif msg.startswith("Unbanned \x02{0}\x02 on".format(bot.nick)):
             channel = msg.split(" ")[3].strip("\x02")
-            if bot.get_channel_config(channel, "autorejoin"):
-                bot.join(channel, bot.get_channel_config(channel, "key"))
+            bot.join(channel, bot.get_channel_config(channel, "key"))
+        elif msg.startswith("You have been invited to"):
+            channel = msg.split(" ")[5].rstrip(".").strip("\x02")
+            bot.join(channel, bot.get_channel_config(channel, "key"))

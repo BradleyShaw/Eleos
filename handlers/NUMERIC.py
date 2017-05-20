@@ -42,5 +42,8 @@ def on_437(bot, event):
 
 def on_474(bot, event):
     channel = event.arguments[0]
-    if bot.get_channel_config(channel, "autorejoin"):
-        bot.msg("ChanServ", "UNBAN {0}".format(channel))
+    bot.msg("ChanServ", "UNBAN {0}".format(channel))
+
+def on_473(bot, event):
+    channel = event.arguments[0]
+    bot.msg("ChanServ", "INVITE {0}".format(channel))
