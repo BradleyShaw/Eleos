@@ -13,8 +13,9 @@ def on_JOIN(bot, event):
         bot.channels[channel]["quiets"] = List()
         bot.channels[channel]["excepts"] = None
         bot.channels[channel]["invites"] = None
-        bot.channels[channel]["ops"] = List()
-        bot.channels[channel]["halfops"] = List()
+        bot.channels[channel]["prefixes"] = {}
+        for prefix in bot.server["prefixes"]:
+            bot.channels[channel]["prefixes"][prefix] = List()
         bot.channels[channel]["voices"] = List()
         bot.channels[channel]["modes"] = List()
         bot.channels[channel]["syncing"] = {

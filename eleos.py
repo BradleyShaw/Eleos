@@ -469,18 +469,31 @@ class Bot(object):
             and "+m" not in self.channels[channel]["modes"])
 
     def is_voice(self, channel, nick):
+        prefixes = [p[0] for p in self.server["prefixes"].items() if
+            p[1]["level"] == "voice"]
         if channel in self.channels:
-            return nick in self.channels[channel]["voices"]
-        else:
-            return False
+            for prefix in prefixes:
+                if nick in self.channels[channel]["prefixes"][prefix]:
+                    return True
+        return False
 
     def is_op(self, channel, nick):
+        prefixes = [p[0] for p in self.server["prefixes"].items() if
+            p[1]["level"] == "op"]
         if channel in self.channels:
-            return nick in self.channels[channel]["ops"]
+            for prefix in prefixes:
+                if nick in self.channels[channel]["prefixes"][prefix]:
+                    return True
+        return False
 
     def is_halfop(self, channel, nick):
+        prefixes = [p[0] for p in self.server["prefixes"].items() if
+            p[1]["level"] == "halfop"]
         if channel in self.channels:
-            return nick in self.channels[channel]["halfops"]
+            for prefix in prefixes:
+                if nick in self.channels[channel]["prefixes"][prefix]:
+                    return True
+        return False
 
     def is_channel(self, string):
         return string[0] in self.server["ISUPPORT"]["CHANTYPES"]
@@ -673,7 +686,7 @@ class Bot(object):
         prefix = list(self.server["ISUPPORT"]["PREFIX"].keys())
         return {
             "set": "".join(chanmodes[0:3] + prefix),
-            "unset": "".join(list(chanmodes[0]) + prefix)
+            "unset": "".join(chanmodes[0:2] + prefix)
         }
 
     def split_modes(self, modes):

@@ -89,12 +89,10 @@ class Channel(plugins.Plugin):
                     if affect not in affected and affect != bot.nick:
                         affected.append(affect)
             for nick in affected:
-                if bot.is_op(channel, nick):
-                    setmodes.append("-o {0}".format(nick))
-                if bot.is_halfop(channel, nick):
-                    setmodes.append("-h {0}".format(nick))
-                if bot.is_voice(channel, nick):
-                    setmodes.append("-v {0}".format(nick))
+                for prefix in bot.channels[channel]["prefixes"].items():
+                    if nick in prefix[1]:
+                        prefixmode = bot.server["prefixes"][prefix[0]]["mode"]
+                        setmodes.append("-{0} {1}".format(prefixmode, nick))
             if len(setmodes) == 0:
                 return
             already_op = bot.is_op(channel, bot.nick)
@@ -215,12 +213,10 @@ class Channel(plugins.Plugin):
                 setmodes.append("+b {0}".format(banmask))
                 for affect in bot.ban_affects(channel, banmask):
                     if affect not in affected and affect != bot.nick:
-                        if bot.is_op(channel, affect):
-                            setmodes.append("-o {0}".format(affect))
-                        if bot.is_halfop(channel, affect):
-                            setmodes.append("-h {0}".format(affect))
-                        if bot.is_voice(channel, affect):
-                            setmodes.append("-v {0}".format(affect))
+                        for prefix in bot.channels[channel]["prefixes"].items():
+                            if affect in prefix[1]:
+                                prefixmode = bot.server["prefixes"][prefix[0]]["mode"]
+                                setmodes.append("-{0} {1}".format(prefixmode, affect))
                         affected.append(affect)
             if len(setmodes) == 0:
                 return
@@ -280,12 +276,10 @@ class Channel(plugins.Plugin):
                     if affect not in affected and affect != bot.nick:
                         affected.append(affect)
             for nick in affected:
-                if bot.is_op(channel, nick):
-                    setmodes.append("-o {0}".format(nick))
-                if bot.is_halfop(channel, nick):
-                    setmodes.append("-h {0}".format(nick))
-                if bot.is_voice(channel, nick):
-                    setmodes.append("-v {0}".format(nick))
+                for prefix in bot.channels[channel]["prefixes"].items():
+                    if nick in prefix[1]:
+                        prefixmode = bot.server["prefixes"][prefix[0]]["mode"]
+                        setmodes.append("-{0} {1}".format(prefixmode, nick))
             if len(setmodes) == 0:
                 return
             already_op = bot.is_op(channel, bot.nick)

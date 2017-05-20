@@ -19,16 +19,9 @@ def on_352(bot, event): # WHO
     if channel != "*":
         if channel not in bot.nicks[nick]["channels"]:
             bot.nicks[nick]["channels"].append(channel)
-        for char in status:
-            if char in "!~&@":
-                if nick not in bot.channels[channel]["ops"]:
-                    bot.channels[channel]["ops"].append(nick)
-            elif char == "%":
-                if nick not in bot.channels[channel]["halfops"]:
-                    bot.channels[channel]["halfops"].append(nick)
-            elif char == "+":
-                if nick not in bot.channels[channel]["voices"]:
-                    bot.channels[channel]["voices"].append(nick)
+        for char in status[1:]:
+            if nick not in bot.channels[channel]["prefixes"][char]:
+                bot.channels[channel]["prefixes"][char].append(nick)
     bot.whois(nick)
 
 def on_354(bot, event): # WHOX
@@ -56,17 +49,10 @@ def on_354(bot, event): # WHOX
     bot.nicks[nick]["ip"] = ipaddr if ipaddr != "255.255.255.255" else None
     bot.nicks[nick]["away"] = None
     if status.startswith("G"):
-        bot.send("WHOIS {0}".format(nick))
+        bot.whois(nick)
     if channel != "*":
         if channel not in bot.nicks[nick]["channels"]:
             bot.nicks[nick]["channels"].append(channel)
-        for char in status:
-            if char in "!~&@":
-                if nick not in bot.channels[channel]["ops"]:
-                    bot.channels[channel]["ops"].append(nick)
-            elif char == "%":
-                if nick not in bot.channels[channel]["halfops"]:
-                    bot.channels[channel]["halfops"].append(nick)
-            elif char == "+":
-                if nick not in bot.channels[channel]["voices"]:
-                    bot.channels[channel]["voices"].append(nick)
+        for char in status[1:]:
+            if nick not in bot.channels[channel]["prefixes"][char]:
+                bot.channels[channel]["prefixes"][char].append(nick)

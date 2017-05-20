@@ -1,3 +1,5 @@
+import re
+
 from utils.collections import Dict, List
 
 def on_005(bot, event):
@@ -34,11 +36,25 @@ def on_005(bot, event):
                     count = 0
                     value = value.split(")")
                     value[0] = value[0].lstrip("(")
+                    types = re.split(r"^(.*o)(.*h)?(.*)$", value[0])[1:-1]
+                    levels = {
+                        "op": types[0],
+                        "halfop": types[1] or "",
+                        "voice": types[2]
+                    }
                     bot.server["ISUPPORT"][name] = {}
+                    bot.server["prefixes"] = {}
                     for mode in value[0]:
                         name1 = mode
                         value1 = value[1][count]
                         count += 1
+                        for level in levels.items():
+                            if mode in level[1]:
+                                bot.server["prefixes"][value1] = {
+                                    "mode": mode,
+                                    "level": level[0]
+                                }
+                                break
                         bot.server["ISUPPORT"][name][name1] = value1
                 else:
                     bot.server["ISUPPORT"][name] = value
