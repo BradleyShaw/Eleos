@@ -19,7 +19,9 @@ def on_352(bot, event): # WHO
     if channel != "*":
         if channel not in bot.nicks[nick]["channels"]:
             bot.nicks[nick]["channels"].append(channel)
-        for char in status[1:]:
+        for char in status:
+            if char not in bot.server["prefixes"]:
+                continue
             if nick not in bot.channels[channel]["prefixes"][char]:
                 bot.channels[channel]["prefixes"][char].append(nick)
     bot.whois(nick)
@@ -53,6 +55,8 @@ def on_354(bot, event): # WHOX
     if channel != "*":
         if channel not in bot.nicks[nick]["channels"]:
             bot.nicks[nick]["channels"].append(channel)
-        for char in status[1:]:
+        for char in status:
+            if char not in bot.server["prefixes"]:
+                continue
             if nick not in bot.channels[channel]["prefixes"][char]:
                 bot.channels[channel]["prefixes"][char].append(nick)
