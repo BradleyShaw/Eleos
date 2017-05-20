@@ -61,9 +61,11 @@ def on_PRIVMSG(bot, event):
                             t.start()
                             break
                     else:
-                        bot.log.debug("%s tried to use command %r from plugin %r but "
-                            "does not have required flag(s) (%s)", event.source, command,
-                            plugin, bot.manager.plugins["commands"][command]["flags"])
+                        bot.log.debug("%s tried to use command %r from plugin %r "
+                            "but does not have required flag(s) (%s)",
+                            event.source, command, plugin, flags)
+                        bot.reply(event, "Error: You are not authorized to "
+                            "perform this command.")
                 else:
                     bot.log.debug("%s tried to use invalid command %r from plugin %r",
                         event.source, command, plugin)
@@ -86,4 +88,10 @@ def on_PRIVMSG(bot, event):
                                 t.daemon = True
                                 t.start()
                                 return
+                        bot.log.debug("%s tried to use command %r but does not "
+                            "have required flag(s) (%s)", event.source, command,
+                            flags)
+                        bot.reply(event, "Error: You are not authorized to "
+                            "perform this command.")
+                        return
             bot.log.debug("%s tried to use invalid command %r", event.source, command)
