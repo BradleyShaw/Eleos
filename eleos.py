@@ -20,6 +20,7 @@ import utils.exceptions
 import utils.events
 import utils.hook
 import utils.misc
+import utils.task
 import utils.irc
 import utils.log
 import utils.web
@@ -123,7 +124,8 @@ class BotManager(object):
     def reloadconfig(self):
         try:
             with open(self.config_path) as configfile:
-                self.config = json.load(configfile, object_hook=utils.irc.Dict)
+                self.config = json.load(configfile,
+                                        object_pairs_hook=utils.irc.OrderedDict)
             for name, server in self.config.items():
                 if name in self.connections:
                     self.connections[name].config = server
@@ -134,7 +136,20 @@ class BotManager(object):
             if len(self.threads) == 0:
                 sys.exit(1)
 
+    def saveconfig(self):
+        try:
+            tmpconfig = "{0}.tmp".format(self.config_path)
+            with open(tmpconfig, "w") as configfile:
+                json.dump(self.config, configfile, indent=2)
+                configfile.write("\n")
+            os.replace(tmpconfig, self.config_path)
+            self.log.debug("Config saved to file")
+        except:
+            self.log.error("Unable to save config:")
+            traceback.print_exc()
+
     def runall(self):
+        self.configtask = utils.task.run_every(300, self.saveconfig)
         for bot in self.connections.values():
             t = threading.Thread(target=bot.run, args=(self,))
             t.daemon = True
@@ -147,6 +162,8 @@ class BotManager(object):
             self.die("Ctrl-C at console.")
 
     def die(self, msg=None):
+        self.configtask.stop()
+        self.saveconfig()
         for bot in self.connections.values():
             bot.quit(msg, True)
         try:
@@ -156,6 +173,8 @@ class BotManager(object):
         sys.exit(0)
 
     def restart(self, msg=None):
+        self.configtask.stop()
+        self.saveconfig()
         for bot in self.connections.values():
             bot.quit(msg, True)
         try:

@@ -27,3 +27,10 @@ class List(collections.List):
         if isinstance(item, six.string_types):
             item = String(item)
         return item
+
+class OrderedDict(collections.OrderedDict):
+    @staticmethod
+    def transform_key(key):
+        if isinstance(key, six.string_types):
+            key = String(key)
+        return key

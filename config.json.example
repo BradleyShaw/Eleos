@@ -1,32 +1,32 @@
 {
-    "freenode": {
-        "host": "chat.freenode.net",
-        "port": 6697,
-        "ssl": true,
-        "nick": "Eleos",
-        "ident": "Eleos",
-        "realname": "Eleos - https://git.intrpt.net/bs/Eleos",
-        "sasl": true,
-        "username": "",
-        "password": "",
-        "users": {
-            "<USERNAME>": {
-                "hostmasks": [
-                    "YOUR!HOST@MASK"
-                ],
-                "accounts": [
-                    "YOURACCOUNT"
-                ],
-                "flags": "a"
-            }
-        },
-        "channels": {
-            "default": {
-                "autojoin": true,
-                "autorejoin": false,
-                "prefix": "!"
-            },
-            "<CHANNEL>": {}
+  "freenode": {
+    "host": "chat.freenode.net",
+    "port": 6697,
+    "ssl": true,
+    "nick": "Eleos",
+    "ident": "Eleos",
+    "realname": "Eleos - https://git.intrpt.net/bs/Eleos",
+    "sasl": true,
+    "username": "",
+    "password": "",
+    "users": {
+        "<USERNAME>": {
+            "hostmasks": [
+                "YOUR!HOST@MASK"
+            ],
+            "accounts": [
+                "YOURACCOUNT"
+            ],
+            "flags": "a"
         }
+    },
+    "channels": {
+        "default": {
+            "autojoin": true,
+            "autorejoin": false,
+            "prefix": "!"
+        },
+        "<CHANNEL>": {}
     }
+  }
 }

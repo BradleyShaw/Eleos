@@ -1,3 +1,4 @@
+import collections
 import string
 import six
 import re
@@ -129,3 +130,45 @@ class List(list):
     def count(self, item):
         item = self.transform_item(item)
         return super(List, self).count(item)
+
+class OrderedDict(collections.OrderedDict):
+    @staticmethod
+    def transform_key(key):
+        if isinstance(key, six.string_types):
+            key = String(key)
+        return key
+
+    def __init__(self, *args, **kwargs):
+        super(OrderedDict, self).__init__()
+        self.update(*args, **kwargs)
+
+    def __setitem__(self, key, value):
+        key = self.transform_key(key)
+        return super(OrderedDict, self).__setitem__(key, value)
+
+    def __getitem__(self, key):
+        key = self.transform_key(key)
+        return super(OrderedDict, self).__getitem__(key)
+
+    def __contains__(self, key):
+        key = self.transform_key(key)
+        return super(OrderedDict, self).__contains__(key)
+
+    def __delitem__(self, key):
+        key = self.transform_key(key)
+        return super(OrderedDict, self).__delitem__(key)
+
+    def __repr__(self):
+        return repr(dict(self))
+
+    def get(self, key, *args, **kwargs):
+        key = self.transform_key(key)
+        return super(OrderedDict, self).get(key, *args, **kwargs)
+
+    def setdefault(self, key, *args, **kwargs):
+        key = self.transform_key(key)
+        return super(OrderedDict, self).setdefault(key, *args, **kwargs)
+
+    def pop(self, key, *args, **kwargs):
+        key = self.transform_key(key)
+        return super(OrderedDict, self).pop(key, *args, **kwargs)

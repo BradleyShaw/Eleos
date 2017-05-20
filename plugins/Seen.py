@@ -24,8 +24,10 @@ class Seen(plugins.Plugin):
             self.save_data()
 
     def save_data(self):
-        with open(self.datapath, "w") as seendata:
+        tmpdata = "{0}.tmp".format(self.datapath)
+        with open(tmpdata, "w") as seendata:
             json.dump(self.seen, seendata)
+        os.replace(tmpdata, self.datapath)
 
     def get_last_activity(self, net, channel, nick, msg=False):
         try:
