@@ -130,4 +130,50 @@ class Admin(plugins.Plugin):
             return
         bot.send(args)
 
+    @hook.command(flags="a", global_only=True)
+    def config(self, bot, event, args):
+        """[<channel>] <attribute> [<value>]
+
+        Sets <attribute> to <value> (or returns the current value if none is given).
+        <channel> is only required if the command isn't sent in the channel itself.
+        """
+        try:
+            args = self.space_split(args)
+            value = ""
+            if event.target == bot.nick:
+                channel = args[0]
+                attribute = args[1]
+                if len(args) > 2:
+                    value = " ".join(args[2:])
+            elif bot.is_channel(args[0]):
+                channel = args[0]
+                attribute = args[1]
+                if len(args) > 2:
+                    value = " ".join(args[2:])
+            else:
+                channel = event.target
+                attribute = args[0]
+                if len(args) > 1:
+                    value = " ".join(args[1:])
+        except IndexError:
+            bot.reply(event, self.get_help("config"))
+        else:
+            if channel not in bot.config["channels"]:
+                bot.reply(event, "Error: There is no such channel.")
+                return
+            if value == "":
+                value = bot.get_channel_config(channel, attribute)
+                if value is None:
+                    bot.reply(event, "Error: There is no such attribute.")
+                    return
+                bot.reply(event, "{0}: {1}".format(attribute, value))
+                return
+            if value.lower() in ["on", "true"]:
+                value = True
+            elif value.lower() in ["off", "false"]:
+                value = False
+            bot.config["channels"][channel][attribute] = value
+            bot.reply(event, "Successfully set {0} to {1} for {2}".format(
+                attribute, value, channel))
+
 Class = Admin
