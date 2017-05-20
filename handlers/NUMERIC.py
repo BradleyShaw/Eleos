@@ -28,6 +28,7 @@ def on_001(bot, event):
             bot.config["nick"], bot.config["password"]))
     bot.lastping = time.time()
     bot.pingtask = task.run_every(30, bot.ping)
+    bot.stickytask = task.run_every(10, bot.sticky)
 
 def on_433(bot, event):
     if not bot.connected:

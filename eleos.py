@@ -197,6 +197,7 @@ class Bot(object):
         self.connected = False
         self.dying = False
         self.pingtask = None
+        self.stickytask = None
         self.identified = not self.config.get("nickserv") and not self.config.get("sasl")
         self.log = utils.log.getLogger(self.name)
         t = threading.Thread(target=self.sendqueue)
@@ -328,6 +329,9 @@ class Bot(object):
             if self.pingtask:
                 self.pingtask.stop()
                 self.pingtask = None
+            if self.stickytask:
+                self.stickytask.stop()
+                self.stickytask = None
             self.connected = False
             self.sock.close()
         self.sock = None
@@ -381,6 +385,8 @@ class Bot(object):
         self.send("JOIN {0} {1}".format(",".join(channels), ",".join(keys)))
 
     def part(self, channel, msg=None):
+        if self.get_channel_config(channel, "sticky"):
+            return
         if msg:
             self.send("PART {0} :{1}".format(channel, msg))
         else:
@@ -447,6 +453,13 @@ class Bot(object):
         elif diff >= 60:
             self.log.warn("Lag warning: {0} seconds.".format(int(diff)))
         self.send("PING :{0}".format(now))
+
+    def sticky(self):
+        stickychans = [c for c in self.config["channels"] if
+                        self.get_channel_config(c, "sticky")]
+        for channel in stickychans:
+            if channel not in self.channels:
+                self.join(channel, self.get_channel_config(channel, "key"))
 
     def send(self, data):
         self.sendq.append(data)

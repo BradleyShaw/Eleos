@@ -114,6 +114,9 @@ class Admin(plugins.Plugin):
             if channel not in bot.channels:
                 bot.reply(event, "Error: I'm not in {0}.".format(channel))
                 return
+            if bot.get_channel_config(channel, "sticky"):
+                bot.reply(event, "Error: {0} is a sticky channel.".format(channel))
+                return
             bot.part(channel, message)
 
     @hook.command(flags="a", global_only=True)
