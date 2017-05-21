@@ -5,6 +5,8 @@ def on_JOIN(bot, event):
     channel = event.target
     if nick == bot.nick:
         bot.log.debug("Joined to %s", channel)
+        if channel not in bot.config["channels"]:
+            bot.config["channels"][channel] = {}
         if channel not in bot.channels:
             bot.channels[channel] = {}
         bot.channels[channel]["topic"] = ""
