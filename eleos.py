@@ -600,14 +600,17 @@ class Bot(object):
         return False
 
     def parse_extban(self, eb):
+        try:
+            eb = str(eb)
+        except:
+            return
         ebprefix = self.server["ISUPPORT"]["EXTBAN"][0]
         if ebprefix in ".^$*+?{}[]()\\|":
             ebprefix = "\\{0}".format(ebprefix)
         for ebletter in self.server["ISUPPORT"]["EXTBAN"][1]:
             if ebletter in ".^$*+?{}[]()\\|":
                 ebletter = "\\{0}".format(ebletter)
-            if re.match("^{0}~?{1}(:(.+)?)?$".format(ebprefix, ebletter),
-                        eb):
+            if re.match("^{0}~?{1}(:(.+)?)?$".format(ebprefix, ebletter), eb):
                 extban = {}
                 extban["letter"] = ebletter
                 if ":" in eb:
