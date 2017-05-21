@@ -17,9 +17,12 @@ class Misc(plugins.Plugin):
         Lists the commands in the specified plugin. If no plugin is specified,
         lists all loaded plugins.
         """
-        if args in self.manager.plugins:
-            bot.reply(event,
-                ", ".join(sorted(self.manager.plugins[args]["commands"].keys())))
+        if args.strip() in self.manager.plugins:
+            commands = sorted(self.manager.plugins[args]["commands"].keys())
+            if len(commands) > 0:
+                bot.reply(event, ", ".join(commands)
+            else:
+                bot.reply(event, "This plugin has no commands.")
         else:
             bot.reply(event,
                 ", ".join(sorted(self.manager.plugins.keys())))
@@ -145,5 +148,32 @@ class Misc(plugins.Plugin):
         else:
             nick = event.source
         bot.reply(event, bot.banmask(nick))
+
+    @hook.command
+    def ftds(self, bot, event, args):
+        """[<channel>|--global]
+
+        Lists factoids for <channel> or globally. <channel> is only required if
+        the command isn't sent in the channel itself.
+        """
+        try:
+            args = self.space_split(args)
+            if event.target == bot.nick:
+                channel = args[0]
+            elif len(args) > 0:
+                if args[0].lower() == "--global":
+                    channel = "default"
+                else:
+                    channel = args[0]
+            else:
+                channel = event.target
+        except IndexError:
+            bot.reply(event, self.get_help("ftds"))
+        else:
+            factoids = sorted(self.get_channel_factoids(channel).keys())
+            if len(factoids) > 0:
+                bot.reply(event, ", ".join(factoids))
+            else:
+                bot.reply(event, "No factoids found.")
 
 Class = Misc
