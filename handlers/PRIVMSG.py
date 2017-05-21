@@ -94,4 +94,15 @@ def on_PRIVMSG(bot, event):
                         bot.reply(event, "Error: You are not authorized to "
                             "perform this command.")
                         return
+            factoids = bot.get_channel_factoids(event.target)
+            if command in factoids:
+                factoid = factoids[command]
+                args = args.strip(" ").split(" ")
+                if len(args) > 0:
+                    if args[0] in bot.nicks:
+                        factoid = "{0}: {1}".format(args[0], factoid)
+                bot.log.info("%s called %r in %s", event.source, command,
+                    event.target if event.target != bot.nick else "private")
+                bot.reply(event, factoid)
+                return
             bot.log.debug("%s tried to use invalid command %r", event.source, command)

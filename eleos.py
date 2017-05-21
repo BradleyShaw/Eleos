@@ -229,6 +229,15 @@ class Bot(object):
         else:
             return config
 
+    def get_channel_factoids(self, channel, factoid=None):
+        factoids = copy.deepcopy(self.config["channels"].get("default", {}).get(
+            "factoids", {}))
+        factoids.update(self.config["channels"].get(channel, {}).get("factoids", {}))
+        if factoid:
+            return factoids.get(factoid)
+        else:
+            return factoids
+
     def recv(self):
         if self.sock:
             part = ""

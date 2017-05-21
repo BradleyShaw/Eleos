@@ -10,4 +10,4 @@ def on_QUIT(bot, event):
 
         for prefix in bot.channels[channel]["prefixes"]:
             if nick in bot.channels[channel]["prefixes"][prefix]:
-                bot.channels[channel]["prefixes"][prefix].remove(nic
+                bot.channels[channel]["prefixes"][prefix].remove(nick)

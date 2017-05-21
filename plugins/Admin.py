@@ -145,7 +145,7 @@ class Admin(plugins.Plugin):
                 attribute = args[1]
                 if len(args) > 2:
                     value = " ".join(args[2:])
-            elif bot.is_channel(args[0]):
+            elif bot.is_channel(args[0]) or args[0].lower() == "default":
                 channel = args[0]
                 attribute = args[1]
                 if len(args) > 2:
@@ -175,5 +175,89 @@ class Admin(plugins.Plugin):
             bot.config["channels"][channel][attribute] = value
             bot.reply(event, "Successfully set {0} to {1} for {2}".format(
                 attribute, value, channel))
+
+    @hook.command(flags="a", global_only=True)
+    def setftd(self, bot, event, args):
+        """[<channel>|--global] <factoid> <value>
+
+        Sets <factoid> to <value> in <channel> or globally. <channel> is only
+        necessary if the command isn't sent in the channel itself.
+        """
+        try:
+            args = self.space_split(args)
+            if event.target == bot.nick:
+                channel = args[0]
+                factoid = args[1]
+                value = " ".join(args[2:])
+            elif bot.is_channel(args[0]) or args[0] == "--global":
+                channel = args[0] if bot.is_channel(args[0]) else None
+                factoid = args[1]
+                value = " ".join(args[2:])
+            else:
+                channel = event.target
+                factoid = args[0]
+                value = " ".join(args[1:])
+        except IndexError:
+            bot.reply(event, self.get_help("setftd"))
+        else:
+            if channel:
+                if channel not in bot.config["channels"]:
+                    bot.reply(event, "Error: There is no such channel.")
+                    return
+                if "factoids" not in bot.config["channels"][channel]:
+                    bot.config["channels"][channel]["factoids"] = {}
+                bot.config["channels"][channel]["factoids"][factoid] = value
+                bot.reply(event, "Successfully set factoid {0} to {1} in {2}.".format(
+                    factoid, value, channel))
+            else:
+                if "factoids" not in bot.config["channels"]["default"]:
+                    bot.config["channels"]["default"]["factoids"] = {}
+                bot.config["channels"]["default"]["factoids"][factoid] = value
+                bot.reply(event, "Successfully set factoid {0} to {1}.".format(
+                    factoid, value))
+
+    @hook.command(flags="a", global_only=True)
+    def delftd(self, bot, event, args):
+        """[<channel>|--global] <factoid>
+
+        Deletes <factoid> in <channel>. <channel> is only necessary if the command
+        isn't sent in the channel itself.
+        """
+        try:
+            args = self.space_split(args)
+            if event.target == bot.nick:
+                channel = args[0]
+                factoid = args[1]
+            elif bot.is_channel(args[0]) or args[0] == "--global":
+                channel = args[0] if bot.is_channel(args[0]) else None
+                factoid = args[1]
+            else:
+                channel = event.target
+                factoid = args[0]
+        except IndexError:
+            bot.reply(event, self.get_help("delftd"))
+        else:
+            if channel:
+                if channel not in bot.config["channels"]:
+                    bot.reply(event, "Error: There is no such channel.")
+                    return
+                if "factoids" not in bot.config["channels"][channel]:
+                    bot.reply(event, "Error: This channel has no factoids.")
+                    return
+                if factoid not in bot.config["channels"][channel]["factoids"]:
+                    bot.reply(event, "Error: There is no such factoid.")
+                    return
+                del(bot.config["channels"][channel]["factoids"][factoid])
+                bot.reply(event, "Successfully deleted factoid {0} in {1}.".format(
+                    factoid, channel))
+            else:
+                if "factoids" not in bot.config["channels"]["default"]:
+                    bot.reply(event, "Error: There are no global factoids.")
+                    return
+                if factoid not in bot.config["channels"]["default"]["factoids"]:
+                    bot.reply(event, "Error: There is no such factoid.")
+                    return
+                del(bot.config["channels"]["default"]["factoids"][factoid])
+                bot.reply(event, "Successfully deleted factoid {0}.".format(factoid))
 
 Class = Admin
