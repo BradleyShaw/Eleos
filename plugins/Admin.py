@@ -189,7 +189,7 @@ class Admin(plugins.Plugin):
                 channel = args[0]
                 factoid = args[1]
                 value = " ".join(args[2:])
-            elif bot.is_channel(args[0]) or args[0] == "--global":
+            elif bot.is_channel(args[0]) or args[0].lower() == "--global":
                 channel = args[0] if bot.is_channel(args[0]) else None
                 factoid = args[1]
                 value = " ".join(args[2:])
@@ -228,7 +228,7 @@ class Admin(plugins.Plugin):
             if event.target == bot.nick:
                 channel = args[0]
                 factoid = args[1]
-            elif bot.is_channel(args[0]) or args[0] == "--global":
+            elif bot.is_channel(args[0]) or args[0].lower() == "--global":
                 channel = args[0] if bot.is_channel(args[0]) else None
                 factoid = args[1]
             else:

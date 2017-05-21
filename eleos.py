@@ -565,11 +565,15 @@ class Bot(object):
             if fnmatch(nickmask, banmask):
                 return True
             try:
-                ipaddr = utils.events.NickMask(nickmask).host
+                nickmask = utils.events.NickMask(str(nickmask))
+                banmask = utils.events.NickMask(str(banmask))
+                ipaddr = nickmask.host
                 ipaddr = ipaddress.ip_address(ipaddr)
-                banip = utils.events.NickMask(banmask).host
+                banip = banmask.host
                 banip = ipaddress.ip_network(banip)
-                if ipaddr in banip:
+                nickmask1 = "{0}!{1}".format(nickmask.nick, nickmask.user)
+                banmask1 = "{0}!{1}".format(banmask.nick, banmask.user)
+                if ipaddr in banip and fnmatch(nickmask1, banmask1):
                     return True
             except ValueError:
                 pass
