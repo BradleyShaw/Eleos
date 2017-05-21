@@ -20,7 +20,7 @@ class Misc(plugins.Plugin):
         if args.strip() in self.manager.plugins:
             commands = sorted(self.manager.plugins[args]["commands"].keys())
             if len(commands) > 0:
-                bot.reply(event, ", ".join(commands)
+                bot.reply(event, ", ".join(commands))
             else:
                 bot.reply(event, "This plugin has no commands.")
         else:
