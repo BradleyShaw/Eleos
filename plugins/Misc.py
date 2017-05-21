@@ -170,7 +170,7 @@ class Misc(plugins.Plugin):
         except IndexError:
             bot.reply(event, self.get_help("ftds"))
         else:
-            factoids = sorted(self.get_channel_factoids(channel).keys())
+            factoids = sorted(bot.get_channel_factoids(channel).keys())
             if len(factoids) > 0:
                 bot.reply(event, ", ".join(factoids))
             else:
