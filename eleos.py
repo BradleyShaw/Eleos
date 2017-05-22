@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 from fnmatch import fnmatch
 import importlib
 import ipaddress
@@ -14,6 +14,8 @@ import ssl
 import sys
 import os
 import re
+
+import requests
 
 import utils.collections
 import utils.exceptions
@@ -198,7 +200,7 @@ class Bot(object):
         self.dying = False
         self.pingtask = None
         self.stickytask = None
-        self.identified = not self.config.get("nickserv") and not self.config.get("sasl")
+        self.identified = False
         self.log = utils.log.getLogger(self.name)
         t = threading.Thread(target=self.sendqueue)
         t.daemon = True
@@ -273,14 +275,33 @@ class Bot(object):
         self.started = time.time()
         self.lastping = time.time()
         self.datadir = os.path.join(self.manager.datadir, self.name)
+        self.identified = (
+            not self.config.get("nickserv") and
+            not self.config.get("sasl") and
+            not self.config.get("ssl", {}).get("cert")
+        )
+        self.sasl = {
+            "mechanisms": copy.deepcopy(self.config.get("sasl")) or [],
+            "current": None
+        }
         self.nick = self.config["nick"]
         self.opqueue = utils.irc.Dict()
         if self.config.get("ipv6"):
             self.sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
         else:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        if self.config.get("ssl"):
-            self.sock = ssl.wrap_socket(self.sock)
+        if isinstance(self.config.get("ssl"), dict):
+            sslcfg = self.config["ssl"]
+            if sslcfg.get("verify", True):
+                cert_reqs = ssl.CERT_REQUIRED
+            else:
+                cert_reqs = ssl.CERT_NONE
+            certfile = sslcfg.get("cert")
+            keyfile = sslcfg.get("key")
+            ca_certs = sslcfg.get("ca_certs", requests.certs.where())
+            self.sock = ssl.wrap_socket(self.sock, keyfile=keyfile,
+                                        certfile=certfile, cert_reqs=cert_reqs,
+                                        ca_certs=ca_certs)
         try:
             self.log.info("Connecting to %s:%d as %s", self.config["host"],
                 self.config["port"], self.config["nick"])

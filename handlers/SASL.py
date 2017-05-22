@@ -23,12 +23,17 @@ def on_CAP(bot, event):
         if "sasl" not in bot.server["caps"]:
             bot.send("CAP END")
         else:
-            bot.send("AUTHENTICATE PLAIN")
+            if bot.sasl["mechanisms"]:
+                bot.sasl["current"] = bot.sasl["mechanisms"].pop(0)
+                bot.send("AUTHENTICATE {0}".format(bot.sasl["current"].upper()))
 
 def on_AUTHENTICATE(bot, event):
     if event.arguments[0] == "+":
-        authstr = b64encode("{0}\x00{0}\x00{1}".format(
-            bot.config["username"], bot.config["password"]).encode()).decode()
+        if bot.sasl["current"] == "PLAIN":
+            authstr = b64encode("{0}\x00{0}\x00{1}".format(
+                bot.config["username"], bot.config["password"]).encode()).decode()
+        else:
+            authstr = b64encode(bot.config["username"].encode()).decode()
         bot.send("AUTHENTICATE {0}".format(authstr))
 
 def on_903(bot, event):
@@ -36,8 +41,12 @@ def on_903(bot, event):
     bot.send("CAP END")
 
 def on_904(bot, event):
-    bot.log.error("SASL authentication failed")
-    bot.quit(die=True)
+    if bot.sasl["mechanisms"]:
+        bot.sasl["current"] = bot.sasl["mechanisms"].pop(0)
+        bot.send("AUTHENTICATE {0}".format(bot.sasl["current"].upper()))
+    else:
+        bot.log.error("SASL authentication failed")
+        bot.quit(die=True)
 
 def on_905(bot, event):
     bot.log.error("SASL authentication aborted.")
