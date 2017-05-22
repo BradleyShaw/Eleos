@@ -2,7 +2,7 @@
     "freenode": {
         "host": "chat.freenode.net",
         "port": 6697,
-        "ssl": true,
+        "ssl": {},
         "nick": "Eleos-CI-VERSION",
         "ident": "Eleos",
         "realname": "Eleos CI Test",
