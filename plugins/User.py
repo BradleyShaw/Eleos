@@ -90,7 +90,7 @@ class User(plugins.Plugin):
         if bot.get_account(event.source):
             bot.reply(event, "Error: You are already identified.")
         else:
-            bot.whois(event.source.nick)
+            bot.who(event.source.nick)
 
     @hook.command
     def flags(self, bot, event, args):
