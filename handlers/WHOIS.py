@@ -8,12 +8,6 @@ def on_311(bot, event):
         bot.nicks[nick]["host"] = host
         bot.nicks[nick]["realname"] = gecos
 
-def on_301(bot, event):
-    nick = event.arguments[0]
-    awaymsg = event.arguments[1]
-    if nick in bot.nicks:
-        bot.nicks[nick]["away"] = awaymsg
-
 def on_330(bot, event):
     nick = event.arguments[0]
     account = event.arguments[1]
