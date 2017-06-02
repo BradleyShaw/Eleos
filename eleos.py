@@ -284,7 +284,7 @@ class Bot(object):
             "mechanisms": copy.deepcopy(self.config.get("sasl")) or [],
             "current": None
         }
-        self.nick = self.config["nick"]
+        self.nick = utils.irc.String(self.config["nick"])
         self.opqueue = utils.irc.Dict()
         if self.config.get("ipv6"):
             self.sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
