@@ -1,4 +1,4 @@
-from utils.irc import List
+from utils.irc import List, String
 import utils.misc as misc
 import copy
 
@@ -9,7 +9,7 @@ def on_MODE(bot, event):
         for mode in modes:
             if mode[1] in bot.server["ISUPPORT"]["PREFIX"]:
                 prefix = bot.server["ISUPPORT"]["PREFIX"][mode[1]]
-                nick = mode.split()[1]
+                nick = String(mode.split()[1])
                 if mode[0] == "+":
                     if nick not in bot.channels[channel]["prefixes"][prefix]:
                         bot.channels[channel]["prefixes"][prefix].append(nick)
@@ -25,39 +25,39 @@ def on_MODE(bot, event):
                         bot.channels[channel]["excepts"] = None
                         bot.channels[channel]["invites"] = None
             elif mode.startswith("+b"):
-                mask = mode.split()[1]
+                mask = String(mode.split()[1])
                 if mask not in bot.channels[channel]["bans"]:
                     bot.channels[channel]["bans"].append(mask)
             elif mode.startswith("-b"):
-                mask = mode.split()[1]
+                mask = String(mode.split()[1])
                 if mask in bot.channels[channel]["bans"]:
                     bot.channels[channel]["bans"].remove(mask)
             elif mode.startswith("+q"):
-                mask = mode.split()[1]
+                mask = String(mode.split()[1])
                 if mask not in bot.channels[channel]["quiets"]:
                     bot.channels[channel]["quiets"].append(mask)
             elif mode.startswith("-q"):
-                mask = mode.split()[1]
+                mask = String(mode.split()[1])
                 if mask in bot.channels[channel]["quiets"]:
                     bot.channels[channel]["quiets"].remove(mask)
             elif mode.startswith("+e"):
-                mask = mode.split()[1]
+                mask = String(mode.split()[1])
                 if mask not in bot.channels[channel]["excepts"]:
                     bot.channels[channel]["excepts"].append(mask)
             elif mode.startswith("-e"):
-                mask = mode.split()[1]
+                mask = String(mode.split()[1])
                 if mask in bot.channels[channel]["excepts"]:
                     bot.channels[channel]["excepts"].remove(mask)
             elif mode.startswith("+I"):
-                mask = mode.split()[1]
+                mask = String(mode.split()[1])
                 if mask not in bot.channels[channel]["invites"]:
                     bot.channels[channel]["invites"].append(mask)
             elif mode.startswith("-I"):
-                mask = mode.split()[1]
+                mask = String(mode.split()[1])
                 if mask in bot.channels[channel]["invites"]:
                     bot.channels[channel]["invites"].remove(mask)
             elif mode.startswith("+k"):
-                key = mode.split()[1]
+                key = String(mode.split()[1])
                 if channel in bot.config["channels"]:
                     bot.config["channels"][channel]["key"] = key
             elif mode.startswith("-k"):
