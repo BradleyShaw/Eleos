@@ -1,8 +1,9 @@
 from utils.misc import listreplace
+from utils.irc import String
 
 def on_NICK(bot, event):
     nick = event.source.nick
-    newnick = event.arguments[0]
+    newnick = String(event.arguments[0])
 
     if nick == bot.nick:
         bot.nick = newnick

@@ -10,15 +10,15 @@ import utils.irc as irc
 
 class Seen(plugins.Plugin):
 
-    def __init__(self, manager):
-        super(Seen, self).__init__(manager)
+    def __init__(self, *args, **kwargs):
+        super(Seen, self).__init__(*args, **kwargs)
         self.datapath = os.path.join(self.datadir, "seen.json")
         self.load_data()
 
     def load_data(self):
         if os.path.exists(self.datapath):
             with open(self.datapath) as seendata:
-                self.seen = json.load(seendata, object_hook=irc.Dict)
+                self.seen = json.load(seendata, object_pairs_hook=irc.Dict)
         else:
             self.seen = irc.Dict()
             self.save_data()

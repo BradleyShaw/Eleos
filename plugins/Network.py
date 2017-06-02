@@ -6,8 +6,8 @@ import utils.hook as hook
 
 class Network(plugins.Plugin):
 
-    def __init__(self, manager):
-        super(Network, self).__init__(manager)
+    def __init__(self, *args, **kwargs):
+        super(Network, self).__init__(*args, **kwargs)
         self.queue = queue.Queue()
 
     @hook.command
