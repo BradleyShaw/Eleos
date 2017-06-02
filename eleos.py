@@ -273,7 +273,7 @@ class Bot(object):
         self.nicks = utils.irc.Dict()
         self.server = utils.collections.Dict()
         self.started = time.time()
-        self.lastping = time.time()
+        self.lastline = time.time()
         self.datadir = os.path.join(self.manager.datadir, self.name)
         self.identified = (
             not self.config.get("nickserv") and
@@ -456,15 +456,16 @@ class Bot(object):
     def ping(self):
         now = time.time()
         if not self.connected:
-            self.lastping = now
+            self.lastline = now
             return
-        diff = now - self.lastping
-        if diff >= 120:
+        diff = now - self.lastline
+        if diff >= 240:
             self.reconnect("Lag timeout: {0} seconds.".format(int(diff)))
             return
-        elif diff >= 60:
-            self.log.warn("Lag warning: {0} seconds.".format(int(diff)))
-        self.send("PING :{0}".format(now))
+        elif diff >= 120:
+            self.send("PING :{0}".format(now))
+        else:
+            return
 
     def sticky(self):
         stickychans = [c for c in self.config["channels"] if
@@ -795,6 +796,7 @@ class Bot(object):
                     if len(line) == 0:
                         continue
                     self.log.debug("--> %s", line)
+                    self.lastline = time.time()
                     event = utils.events.Event(line)
                     for handler in self.manager.handlers.values():
                         if hasattr(handler, "on_{0}".format(event.type)):
