@@ -9,7 +9,10 @@ def on_332(bot, event):
 
 def on_TOPIC(bot, event):
     channel = event.target
-    topic = event.arguments[0]
+    if len(event.arguments) > 0:
+        topic = event.arguments[0]
+    else:
+        topic = ''
     if channel in bot.channels:
         if len(topic) > 0:
             bot.channels[channel]["topic"] = topic
