@@ -6,6 +6,10 @@ import utils.repl as repl
 
 class Exec(plugins.Plugin):
 
+    def __init__(self, *args, **kwargs):
+        super(Exec, self).__init__(*args, **kwargs)
+        self.console = repl.Repl({'self': self})
+
     @hook.command(command=">>", flags="a")
     def _exec(self, bot, event, args):
         """<code>
@@ -13,13 +17,13 @@ class Exec(plugins.Plugin):
         Executes the specified code in a python interpreter and replies with
         the result.
         """
-        console = repl.Repl({
-            "self": self,
-            "bot": bot,
-            "event": event,
-            "args": args
+        self.console.locals.update({
+            'self': self,
+            'bot': bot,
+            'event': event,
+            'args': args
         })
-        output = console.run(args).splitlines()
+        output = self.console.run(args).splitlines()
         for line in output:
             if len(line) > 0:
                 bot.reply(event, line)
@@ -32,7 +36,7 @@ class Exec(plugins.Plugin):
         """
         output = subprocess.check_output(args, stderr=subprocess.STDOUT, shell=True)
         if output:
-            output = output.decode("UTF-8", "ignore").splitlines()
+            output = output.decode('UTF-8', 'ignore').splitlines()
             for line in output:
                 if len(line) > 0:
                     bot.reply(event, line)
