@@ -3,16 +3,17 @@ from time import sleep
 import utils.plugins as plugins
 import utils.hook as hook
 
+
 class Channel(plugins.Plugin):
 
     @hook.command(flags="o")
     def kick(self, bot, event, args):
         """[<channel>] <nick> [<nick>...] [:][<message>]
 
-        Kicks <nick> in <channel>. <channel> is only necessary if the command
-        isn't sent in the channel itself. It is recommended to use ':' as a
-        seperator between the nicks and kick message to avoid unintentionally
-        kicking someone.
+        Kicks <nick> in <channel>. <channel> is only necessary if the
+        command isn't sent in the channel itself. It is recommended to
+        use ':' as a seperator between the nicks and kick message to
+        avoid unintentionally kicking someone.
         """
         kicknicks = []
         kickmsg = None
@@ -35,11 +36,11 @@ class Channel(plugins.Plugin):
                 bot.reply(event, "Error: I'm not in {0}.".format(channel))
                 return
             for nick in nicks:
-                if (nick in bot.channels[channel]["names"]
-                    and nick not in kicknicks
-                    and not nick.startswith(":")):
+                if (nick in bot.channels[channel]["names"] and
+                        nick not in kicknicks and not nick.startswith(":")):
                     kicknicks.append(nick)
-                elif nick not in bot.channels[channel]["names"] or nick.startswith(":"):
+                elif (nick not in bot.channels[channel]["names"] or
+                        nick.startswith(":")):
                     kickmsg = " ".join(nicks[len(kicknicks):])
                     if kickmsg.startswith(":"):
                         kickmsg = kickmsg.replace(":", "", 1)
@@ -56,8 +57,8 @@ class Channel(plugins.Plugin):
     def ban(self, bot, event, args):
         """[<channel>] <nick|hostmask> [<nick|hostmask>...]
 
-        Bans <nick> in <channel>. <channel> is only necessary if the command
-        isn't sent in the channel itself.
+        Bans <nick> in <channel>. <channel> is only necessary if the
+        command isn't sent in the channel itself.
         """
         setmodes = []
         affected = []
@@ -116,9 +117,9 @@ class Channel(plugins.Plugin):
     def unban(self, bot, event, args):
         """[<channel>] [<nick|hostmask>...]
 
-        Unbans <nick> (or yourself if no nick is specified) in <channel>.
-        <channel> is only necessary if the command isn't sent in the channel
-        itself.
+        Unbans <nick> (or yourself if no nick is specified) in
+        <channel>. <channel> is only necessary if the command isn't sent
+        in the channel itself.
         """
         setmodes = []
         try:
@@ -165,11 +166,11 @@ class Channel(plugins.Plugin):
     def kban(self, bot, event, args):
         """[<channel>] <nick|hostmask> [<nick|hostmask>...] [:][<message>]
 
-        Bans <nick> in <channel> and kicks anyone affected (using <message>
-        if specified). <channel> is only necessary if the command isn't sent
-        in the channel itself. It is recommended to use ':' as a seperator
-        between the nicks and kick message to avoid unintentionally kicking
-        someone.
+        Bans <nick> in <channel> and kicks anyone affected (using
+        <message> if specified). <channel> is only necessary if the
+        command isn't sent in the channel itself. It is recommended to
+        use ':' as a seperator between the nicks and kick message to
+        avoid unintentionally kicking someone.
         """
         bannicks = []
         setmodes = []
@@ -194,12 +195,12 @@ class Channel(plugins.Plugin):
                 bot.reply(event, "Error: I'm not in {0}.".format(channel))
                 return
             for nick in nicks:
-                if ((nick in bot.channels[channel]["names"]
-                    or bot.is_banmask(nick))
-                    and nick not in bannicks
-                    and not nick.startswith(":")):
+                if ((nick in bot.channels[channel]["names"] or
+                        bot.is_banmask(nick)) and nick not in bannicks and
+                        not nick.startswith(":")):
                     bannicks.append(nick)
-                elif nick not in bot.channels[channel]["names"] or nick.startswith(":"):
+                elif (nick not in bot.channels[channel]["names"] or
+                        nick.startswith(":")):
                     kickmsg = " ".join(nicks[len(bannicks):])
                     if kickmsg.startswith(":"):
                         kickmsg = kickmsg.replace(":", "", 1)
@@ -213,10 +214,13 @@ class Channel(plugins.Plugin):
                 setmodes.append("+b {0}".format(banmask))
                 for affect in bot.ban_affects(channel, banmask):
                     if affect not in affected and affect != bot.nick:
-                        for prefix in bot.channels[channel]["prefixes"].items():
+                        chanprefixes = bot.channels[channel]["prefixes"]
+                        for prefix in chanprefixes.items():
                             if affect in prefix[1]:
-                                prefixmode = bot.server["prefixes"][prefix[0]]["mode"]
-                                setmodes.append("-{0} {1}".format(prefixmode, affect))
+                                prefixdata = bot.server['prefixes'][prefix[0]]
+                                prefixmode = prefixdata["mode"]
+                                setmodes.append("-{0} {1}".format(prefixmode,
+                                                affect))
                         affected.append(affect)
             if len(setmodes) == 0:
                 return
@@ -243,8 +247,8 @@ class Channel(plugins.Plugin):
     def quiet(self, bot, event, args):
         """[<channel>] <nick|hostmask> [<nick|hostmask>...]
 
-        Quiets <nick> in <channel>. <channel> is only necessary if the command
-        isn't sent in the channel itself.
+        Quiets <nick> in <channel>. <channel> is only necessary if the
+        command isn't sent in the channel itself.
         """
         setmodes = []
         affected = []
@@ -299,9 +303,9 @@ class Channel(plugins.Plugin):
     def unquiet(self, bot, event, args):
         """[<channel>] [<nick|hostmask>...]
 
-        Unquiets <nick> (or yourself if no nick is specified) in <channel>.
-        <channel> is only necessary if the command isn't sent in the channel
-        itself.
+        Unquiets <nick> (or yourself if no nick is specified) in
+        <channel>. <channel> is only necessary if the command isn't sent
+        in the channel itself.
         """
         setmodes = []
         try:
@@ -348,8 +352,8 @@ class Channel(plugins.Plugin):
     def exempt(self, bot, event, args):
         """[<channel>] <nick|hostmask> [<nick|hostmask>...]
 
-        Exempts <nick> in <channel>. <channel> is only necessary if the command
-        isn't sent in the channel itself.
+        Exempts <nick> in <channel>. <channel> is only necessary if the
+        command isn't sent in the channel itself.
         """
         setmodes = []
         try:
@@ -388,9 +392,9 @@ class Channel(plugins.Plugin):
     def unexempt(self, bot, event, args):
         """[<channel>] [<nick|hostmask>...]
 
-        Unexempts <nick> (or yourself if no nick is specified) in <channel>.
-        <channel> is only necessary if the command isn't sent in the channel
-        itself.
+        Unexempts <nick> (or yourself if no nick is specified) in
+        <channel>. <channel> is only necessary if the command isn't sent
+        in the channel itself.
         """
         setmodes = []
         try:
@@ -438,8 +442,8 @@ class Channel(plugins.Plugin):
     def invex(self, bot, event, args):
         """[<channel>] <nick|hostmask> [<nick|hostmask>...]
 
-        Invexes <nick> in <channel>. <channel> is only necessary if the command
-        isn't sent in the channel itself.
+        Invexes <nick> in <channel>. <channel> is only necessary if the
+        command isn't sent in the channel itself.
         """
         setmodes = []
         try:
@@ -478,9 +482,9 @@ class Channel(plugins.Plugin):
     def uninvex(self, bot, event, args):
         """[<channel>] [<nick|hostmask>...]
 
-        Uninvexes <nick> (or yourself if no nick is specified) in <channel>.
-        <channel> is only necessary if the command isn't sent in the channel
-        itself.
+        Uninvexes <nick> (or yourself if no nick is specified) in
+        <channel>. <channel> is only necessary if the command isn't sent
+        in the channel itself.
         """
         setmodes = []
         try:
@@ -528,8 +532,8 @@ class Channel(plugins.Plugin):
     def mode(self, bot, event, args):
         """[<channel>] <modes>
 
-        Sets <modes> in <channel>. <channel> is only necessary if the command
-        isn't sent in the channel itself.
+        Sets <modes> in <channel>. <channel> is only necessary if the
+        command isn't sent in the channel itself.
         """
         try:
             args = self.space_split(args)
@@ -560,8 +564,9 @@ class Channel(plugins.Plugin):
     def op(self, bot, event, args):
         """[<channel>] [<nick>...]
 
-        Ops <nick> (or yourself if no nick is specified) in <channel>. <channel>
-        is only necessary if the command isn't sent in the channel itself.
+        Ops <nick> (or yourself if no nick is specified) in <channel>.
+        <channel> is only necessary if the command isn't sent in the
+        channel itself.
         """
         try:
             args = self.space_split(args)
@@ -603,8 +608,9 @@ class Channel(plugins.Plugin):
     def deop(self, bot, event, args):
         """[<channel>] [<nick>...]
 
-        Deops <nick> (or yourself if no nick is specified) in <channel>. <channel>
-        is only necessary if the command isn't sent in the channel itself.
+        Deops <nick> (or yourself if no nick is specified) in <channel>.
+        <channel> is only necessary if the command isn't sent in the
+        channel itself.
         """
         try:
             args = self.space_split(args)
@@ -646,8 +652,9 @@ class Channel(plugins.Plugin):
     def voice(self, bot, event, args):
         """[<channel>] [<nick>...]
 
-        Voices <nick> (or yourself if no nick is specified) in <channel>. <channel>
-        is only necessary if the command isn't sent in the channel itself.
+        Voices <nick> (or yourself if no nick is specified) in
+        <channel>. <channel> is only necessary if the command isn't sent
+        in the channel itself.
         """
         try:
             args = self.space_split(args)
@@ -689,8 +696,9 @@ class Channel(plugins.Plugin):
     def devoice(self, bot, event, args):
         """[<channel>] [<nick>...]
 
-        Devoices <nick> (or yourself if no nick is specified) in <channel>. <channel>
-        is only necessary if the command isn't sent in the channel itself.
+        Devoices <nick> (or yourself if no nick is specified) in
+        <channel>. <channel> is only necessary if the command isn't sent
+        in the channel itself.
         """
         try:
             args = self.space_split(args)
@@ -727,5 +735,6 @@ class Channel(plugins.Plugin):
             if bot.request_op(channel):
                 for mode in bot.unsplit_modes(setmodes):
                     bot.mode(channel, mode)
+
 
 Class = Channel

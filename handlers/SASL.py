@@ -1,5 +1,6 @@
 from base64 import b64encode
 
+
 def on_CAP(bot, event):
     if event.arguments[0] == "LS":
         caps = []
@@ -23,20 +24,25 @@ def on_CAP(bot, event):
         else:
             if bot.sasl["mechanisms"]:
                 bot.sasl["current"] = bot.sasl["mechanisms"].pop(0)
-                bot.send("AUTHENTICATE {0}".format(bot.sasl["current"].upper()))
+                bot.send("AUTHENTICATE {0}".format(
+                         bot.sasl["current"].upper()))
+
 
 def on_AUTHENTICATE(bot, event):
     if event.arguments[0] == "+":
         if bot.sasl["current"] == "PLAIN":
             authstr = b64encode("{0}\x00{0}\x00{1}".format(
-                bot.config["username"], bot.config["password"]).encode()).decode()
+                bot.config["username"],
+                bot.config["password"]).encode()).decode()
         else:
             authstr = b64encode(bot.config["username"].encode()).decode()
         bot.send("AUTHENTICATE {0}".format(authstr))
 
+
 def on_903(bot, event):
     bot.identified = True
     bot.send("CAP END")
+
 
 def on_904(bot, event):
     if bot.sasl["mechanisms"]:
@@ -45,6 +51,7 @@ def on_904(bot, event):
     else:
         bot.log.error("SASL authentication failed")
         bot.quit(die=True)
+
 
 def on_905(bot, event):
     bot.log.error("SASL authentication aborted.")

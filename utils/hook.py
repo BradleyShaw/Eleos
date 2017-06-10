@@ -5,6 +5,7 @@ from .collections import String
 
 events = []
 
+
 def command(func=None, **kwargs):
     def wrapper(func):
         cmd = String(kwargs.get("command", func.__name__))
@@ -23,6 +24,7 @@ def command(func=None, **kwargs):
         return wrapper(func)
     return wrapper
 
+
 def event(func=None, **kwargs):
     def wrapper(func):
         events.append({
@@ -35,6 +37,7 @@ def event(func=None, **kwargs):
         return wrapper(func)
     return wrapper
 
+
 def regex(func=None, **kwargs):
     def wrapper(func):
         events.append({
@@ -46,6 +49,7 @@ def regex(func=None, **kwargs):
     if isinstance(func, collections.Callable):
         return wrapper(func)
     return wrapper
+
 
 def mkhelp(cmd, docstring):
     if docstring:

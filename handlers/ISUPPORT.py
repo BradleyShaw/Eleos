@@ -2,6 +2,7 @@ import re
 
 from utils.collections import Dict, List
 
+
 def on_005(bot, event):
     if "ISUPPORT" not in bot.server:
         bot.server["ISUPPORT"] = Dict()

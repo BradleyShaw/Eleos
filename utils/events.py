@@ -1,5 +1,6 @@
 from .irc import String
 
+
 class Event(object):
 
     def __init__(self, raw):
@@ -67,6 +68,7 @@ class Event(object):
             "raw: {raw}"
         )
         return tmpl.format(**vars(self))
+
 
 class NickMask(object):
 

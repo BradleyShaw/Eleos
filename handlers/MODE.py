@@ -2,6 +2,7 @@ from utils.irc import List, String
 import utils.misc as misc
 import copy
 
+
 def on_MODE(bot, event):
     if bot.is_channel(event.target):
         channel = event.target
@@ -13,15 +14,18 @@ def on_MODE(bot, event):
                 if mode[0] == "+":
                     if nick not in bot.channels[channel]["prefixes"][prefix]:
                         bot.channels[channel]["prefixes"][prefix].append(nick)
-                    if nick == bot.nick and bot.server["prefixes"][prefix]["level"] == "op":
-                        bot.log.debug("Syncing excepts and invites for %s", channel)
+                    if (nick == bot.nick and
+                            bot.server["prefixes"][prefix]["level"] == "op"):
+                        bot.log.debug("Syncing excepts and invites for %s",
+                                      channel)
                         bot.mode(channel, "eI")
                         if channel in bot.opqueue:
                             bot.opqueue[channel].put(True)
                 elif mode[0] == "-":
                     if nick in bot.channels[channel]["prefixes"][prefix]:
                         bot.channels[channel]["prefixes"][prefix].remove(nick)
-                    if nick == bot.nick and bot.server["prefixes"][prefix]["level"] == "op":
+                    if (nick == bot.nick and
+                            bot.server["prefixes"][prefix]["level"] == "op"):
                         bot.channels[channel]["excepts"] = None
                         bot.channels[channel]["invites"] = None
             elif mode.startswith("+b"):
@@ -72,10 +76,12 @@ def on_MODE(bot, event):
                         if splitmode[0].startswith("-"):
                             bot.channels[channel]["modes"].remove(m)
                         elif splitmode[0].startswith("+"):
-                            misc.listreplace(bot.channels[channel]["modes"], m, mode)
+                            misc.listreplace(bot.channels[channel]["modes"], m,
+                                             mode)
                         break
                 else:
                     bot.channels[channel]["modes"].append(mode)
+
 
 def on_324(bot, event):
     channel = event.arguments[0]

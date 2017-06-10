@@ -1,12 +1,14 @@
-from hurry.filesize import size, alternative
 import subprocess
-import psutil
 import os
+
+from hurry.filesize import size, alternative
+import psutil
 
 import utils.plugins as plugins
 import utils.hook as hook
 import utils.misc as misc
 import utils.time as time
+
 
 class Misc(plugins.Plugin):
 
@@ -14,8 +16,8 @@ class Misc(plugins.Plugin):
     def listcmd(self, bot, event, args):
         """[<plugin>]
 
-        Lists the commands in the specified plugin. If no plugin is specified,
-        lists all loaded plugins.
+        Lists the commands in the specified plugin. If no plugin is
+        specified, lists all loaded plugins.
         """
         if args.strip() in self.manager.plugins:
             commands = sorted(self.manager.plugins[args]["commands"].keys())
@@ -25,19 +27,19 @@ class Misc(plugins.Plugin):
                 bot.reply(event, "This plugin has no commands.")
         else:
             bot.reply(event,
-                ", ".join(sorted(self.manager.plugins.keys())))
+                      ", ".join(sorted(self.manager.plugins.keys())))
 
     @hook.command(command="help")
     def helpcmd(self, bot, event, args):
         """[<plugin>] [<command>]
 
-        Gives the help information for the specified command. A plugin doesn't
-        need to be specified unless the command is in more than one plugin.
-        Use the 'list' command to get a list of plugins and commands.
+        Gives the help information for the specified command. A plugin
+        doesn't need to be specified unless the command is in more than
+        one plugin. Use the 'list' command to get a list of plugins and
+        commands.
         """
         if args == "":
-            bot.reply(event,
-                self.get_help("help"))
+            bot.reply(event, self.get_help("help"))
             return
         args = args.split(" ")
         plugin = None
@@ -57,7 +59,7 @@ class Misc(plugins.Plugin):
                 return
             elif len(plugins) > 1:
                 bot.reply(event, "Error: This command exists in more than one "
-                    "plugin.")
+                          "plugin.")
                 return
             else:
                 plugin = plugins[0]
@@ -92,11 +94,12 @@ class Misc(plugins.Plugin):
         chans = misc.count(len(bot.channels), "channel", "channels")
         txmsgs = misc.count(bot.txmsgs, "message", "messages")
         rxmsgs = misc.count(bot.rxmsgs, "message", "messages")
-        bot.reply(event, "This bot has been running for {0}, has been connected "
-            "for {1}, is tracking {2} in {3}, is using {4} of RAM, has used {5} "
-            "of CPU time, has sent {6} for {7} of data and received {8} for {9} "
-            "of data".format(botuptime, connuptime, users, chans, ramusage,
-            cputime, txmsgs, datasent, rxmsgs, datarecv))
+        bot.reply(event, "This bot has been running for {0}, has been "
+                  "connected for {1}, is tracking {2} in {3}, is using {4} of "
+                  "RAM, has used {5} of CPU time, has sent {6} for {7} of "
+                  "data and received {8} for {9} of data".format(
+                    botuptime, connuptime, users, chans, ramusage, cputime,
+                    txmsgs, datasent, rxmsgs, datarecv))
 
     @hook.command
     def version(self, bot, event, args):
@@ -119,7 +122,8 @@ class Misc(plugins.Plugin):
     def hm(self, bot, event, args):
         """[<nick>]
 
-        Returns the hostmask of <nick> (or yourself if no nick is specified).
+        Returns the hostmask of <nick> (or yourself if no nick is
+        specified).
         """
         args = self.space_split(args)
         if len(args) > 0:
@@ -140,7 +144,8 @@ class Misc(plugins.Plugin):
     def bm(self, bot, event, args):
         """[<nick|hostmask>]
 
-        Returns a banmask for <nick> (or yourself if no nick is specified).
+        Returns a banmask for <nick> (or yourself if no nick is
+        specified).
         """
         args = self.space_split(args)
         if len(args) > 0:
@@ -153,8 +158,8 @@ class Misc(plugins.Plugin):
     def ftds(self, bot, event, args):
         """[<channel>|--global]
 
-        Lists factoids for <channel> or globally. <channel> is only required if
-        the command isn't sent in the channel itself.
+        Lists factoids for <channel> or globally. <channel> is only
+        required if the command isn't sent in the channel itself.
         """
         try:
             args = self.space_split(args)
@@ -175,5 +180,6 @@ class Misc(plugins.Plugin):
                 bot.reply(event, ", ".join(factoids))
             else:
                 bot.reply(event, "No factoids found.")
+
 
 Class = Misc

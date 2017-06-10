@@ -3,6 +3,7 @@ import subprocess
 import utils.plugins as plugins
 import utils.hook as hook
 
+
 class Admin(plugins.Plugin):
 
     @hook.command(command="reload", flags="a", global_only=True)
@@ -32,8 +33,8 @@ class Admin(plugins.Plugin):
         Shuts down the bot (with <message> if specified)
         """
         if len(args) > 0:
-            self.manager.die("Shutting down ({0} ({1}))".format(event.source.nick,
-                args))
+            self.manager.die("Shutting down ({0} ({1}))".format(
+                             event.source.nick, args))
         else:
             self.manager.die("Shutting down ({0})".format(event.source.nick))
 
@@ -44,8 +45,8 @@ class Admin(plugins.Plugin):
         Restarts the bot (with <message> if specified)
         """
         if len(args) > 0:
-            self.manager.restart("Restarting ({0} ({1}))".format(event.source.nick,
-                args))
+            self.manager.restart("Restarting ({0} ({1}))".format(
+                                 event.source.nick, args))
         else:
             self.manager.restart("Restarting ({0})".format(event.source.nick))
 
@@ -55,8 +56,8 @@ class Admin(plugins.Plugin):
 
         Attempts a `git pull` to update the bot.
         """
-        output = subprocess.check_output("git pull -n", stderr=subprocess.STDOUT,
-            shell=True)
+        output = subprocess.check_output("git pull -n",
+                                         stderr=subprocess.STDOUT, shell=True)
         if output:
             output = output.decode("UTF-8", "ignore").splitlines()
             for line in output:
@@ -76,7 +77,8 @@ class Admin(plugins.Plugin):
     def joincmd(self, bot, event, args):
         """<channel> [<key>]
 
-        Makes the bot attempt to join <channel> (using <key> if specified).
+        Makes the bot attempt to join <channel> (using <key> if
+        specified).
         """
         args = args.split(" ", 1)
         if len(args) == 1:
@@ -88,8 +90,9 @@ class Admin(plugins.Plugin):
     def part(self, bot, event, args):
         """[<channel>] [<message>]
 
-        Makes the bot part <channel> (with <message> is specified). <channel> is
-        only required if the command isn't sent in the channel itself.
+        Makes the bot part <channel> (with <message> is specified).
+        <channel> is only required if the command isn't sent in the
+        channel itself.
         """
         try:
             split_args = self.space_split(args)
@@ -115,7 +118,8 @@ class Admin(plugins.Plugin):
                 bot.reply(event, "Error: I'm not in {0}.".format(channel))
                 return
             if bot.get_channel_config(channel, "sticky"):
-                bot.reply(event, "Error: {0} is a sticky channel.".format(channel))
+                bot.reply(event, "Error: {0} is a sticky channel.".format(
+                          channel))
                 return
             bot.part(channel, message)
 
@@ -134,8 +138,9 @@ class Admin(plugins.Plugin):
     def config(self, bot, event, args):
         """[<channel>] <attribute> [<value>]
 
-        Sets <attribute> to <value> (or returns the current value if none is given).
-        <channel> is only required if the command isn't sent in the channel itself.
+        Sets <attribute> to <value> (or returns the current value if
+        none is given). <channel> is only required if the command isn't
+        sent in the channel itself.
         """
         try:
             args = self.space_split(args)
@@ -180,8 +185,8 @@ class Admin(plugins.Plugin):
     def setftd(self, bot, event, args):
         """[<channel>|--global] <factoid> <value>
 
-        Sets <factoid> to <value> in <channel> or globally. <channel> is only
-        necessary if the command isn't sent in the channel itself.
+        Sets <factoid> to <value> in <channel> or globally. <channel> is
+        only necessary if the command isn't sent in the channel itself.
         """
         try:
             args = self.space_split(args)
@@ -207,8 +212,9 @@ class Admin(plugins.Plugin):
                 if "factoids" not in bot.config["channels"][channel]:
                     bot.config["channels"][channel]["factoids"] = {}
                 bot.config["channels"][channel]["factoids"][factoid] = value
-                bot.reply(event, "Successfully set factoid {0} to {1} in {2}.".format(
-                    factoid, value, channel))
+                bot.reply(event,
+                          "Successfully set factoid {0} to {1} in {2}.".format(
+                            factoid, value, channel))
             else:
                 if "factoids" not in bot.config["channels"]["default"]:
                     bot.config["channels"]["default"]["factoids"] = {}
@@ -220,8 +226,8 @@ class Admin(plugins.Plugin):
     def delftd(self, bot, event, args):
         """[<channel>|--global] <factoid>
 
-        Deletes <factoid> in <channel>. <channel> is only necessary if the command
-        isn't sent in the channel itself.
+        Deletes <factoid> in <channel>. <channel> is only necessary if
+        the command isn't sent in the channel itself.
         """
         try:
             args = self.space_split(args)
@@ -248,16 +254,20 @@ class Admin(plugins.Plugin):
                     bot.reply(event, "Error: There is no such factoid.")
                     return
                 del(bot.config["channels"][channel]["factoids"][factoid])
-                bot.reply(event, "Successfully deleted factoid {0} in {1}.".format(
-                    factoid, channel))
+                bot.reply(event,
+                          "Successfully deleted factoid {0} in {1}.".format(
+                            factoid, channel))
             else:
                 if "factoids" not in bot.config["channels"]["default"]:
                     bot.reply(event, "Error: There are no global factoids.")
                     return
-                if factoid not in bot.config["channels"]["default"]["factoids"]:
+                if (factoid not in 
+                        bot.config["channels"]["default"]["factoids"]):
                     bot.reply(event, "Error: There is no such factoid.")
                     return
                 del(bot.config["channels"]["default"]["factoids"][factoid])
-                bot.reply(event, "Successfully deleted factoid {0}.".format(factoid))
+                bot.reply(event, "Successfully deleted factoid {0}.".format(
+                          factoid))
+
 
 Class = Admin

@@ -2,7 +2,7 @@ def on_NOTICE(bot, event):
     msg = event.arguments[0]
     if event.source.nick == "NickServ":
         if (not bot.identified and
-            msg.startswith("You are now identified")):
+                msg.startswith("You are now identified")):
             autojoins = []
             for channel, conf in bot.config["channels"].items():
                 if conf.get("autojoin", bot.config.get("autojoin")):

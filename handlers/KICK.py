@@ -1,5 +1,6 @@
 import copy
 
+
 def on_KICK(bot, event):
     channel = event.target
     target = event.arguments[0]
@@ -9,7 +10,7 @@ def on_KICK(bot, event):
         reason = ""
     if target == bot.nick:
         bot.log.info("Kicked from {0} by {1} ({2})".format(channel,
-            event.source, reason))
+                     event.source, reason))
         for nick in copy.deepcopy(bot.nicks):
             if channel in bot.nicks[nick]["channels"]:
                 bot.nicks[nick]["channels"].remove(channel)

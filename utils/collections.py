@@ -3,6 +3,7 @@ import string
 import six
 import re
 
+
 class String(six.text_type):
     casemapping = {
         "upper": string.ascii_uppercase,
@@ -47,6 +48,7 @@ class String(six.text_type):
     def split(self, splitter=' ', maxsplit=0):
         pattern = re.compile(re.escape(splitter), re.I)
         return List(pattern.split(self, maxsplit))
+
 
 class Dict(dict):
     @staticmethod
@@ -130,6 +132,7 @@ class List(list):
     def count(self, item):
         item = self.transform_item(item)
         return super(List, self).count(item)
+
 
 class OrderedDict(collections.OrderedDict):
     @staticmethod

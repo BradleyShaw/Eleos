@@ -17,15 +17,16 @@ import re
 
 import requests
 
-import utils.collections
-import utils.exceptions
-import utils.events
-import utils.hook
-import utils.misc
-import utils.task
-import utils.irc
-import utils.log
-import utils.web
+import utils.collections as collections
+import utils.exceptions as exceptions
+import utils.events as events
+import utils.hook as hook
+import utils.misc as misc
+import utils.task as task
+import utils.irc as irc
+import utils.log as log
+import utils.web as web
+
 
 class BotManager(object):
 
@@ -36,10 +37,10 @@ class BotManager(object):
         self.config = {}
         self.threads = []
         self.started = time.time()
-        self.log = utils.log.getLogger("Manager")
+        self.log = log.getLogger("Manager")
         self.config_path = os.path.join(os.getcwd(), config_file)
         self.datadir = os.path.join(os.getcwd(), "data")
-        self.plugins = utils.collections.Dict()
+        self.plugins = collections.Dict()
         if not os.path.exists(self.datadir):
             self.log.info("Couldn't find data dir, creating it...")
             os.mkdir(self.datadir)
@@ -52,7 +53,8 @@ class BotManager(object):
 
     def importhandler(self, handler_name, reload=False):
         try:
-            handler = importlib.import_module("handlers.{0}".format(handler_name))
+            handler = importlib.import_module("handlers.{0}".format(
+                                              handler_name))
             if reload:
                 handler = importlib.reload(handler)
             self.handlers[handler_name] = handler
@@ -62,45 +64,50 @@ class BotManager(object):
 
     def importplugin(self, plugin_name, reload=False):
         try:
-            utils.hook.events = []
+            hook.events = []
             plugin = importlib.import_module("plugins.{0}".format(plugin_name))
             if reload:
                 plugin = importlib.reload(plugin)
             if not hasattr(plugin, "Class"):
-                self.log.debug("Ignoring plugin %r; no 'Class' attribute", plugin_name)
+                self.log.debug("Ignoring plugin %r; no 'Class' attribute",
+                               plugin_name)
                 return
             self.plugins[plugin_name] = {}
             self.plugins[plugin_name]["class"] = plugin.Class(self)
-            self.plugins[plugin_name]["commands"] = utils.collections.Dict()
-            self.plugins[plugin_name]["events"] = utils.collections.Dict()
+            self.plugins[plugin_name]["commands"] = collections.Dict()
+            self.plugins[plugin_name]["events"] = collections.Dict()
             self.plugins[plugin_name]["regexes"] = {}
-            for evn in utils.hook.events:
+            for evn in hook.events:
                 if evn["event"] == "command":
                     self.log.debug("Found command %r in plugin %r",
-                        evn["command"], plugin_name)
+                                   evn["command"], plugin_name)
                     self.plugins[plugin_name]["commands"][evn["command"]] = {
-                        "func": getattr(self.plugins[plugin_name]["class"], evn["func"]),
+                        "func": getattr(self.plugins[plugin_name]["class"],
+                                        evn["func"]),
                         "perms": evn["perms"],
                         "help": evn["help"]
                     }
                 elif evn["event"] == "event":
                     self.log.debug("Found event %r in plugin %r",
-                        evn["type"], plugin_name)
+                                   evn["type"], plugin_name)
                     self.plugins[plugin_name]["events"][evn["type"]] = {
-                        "func": getattr(self.plugins[plugin_name]["class"], evn["func"])
+                        "func": getattr(self.plugins[plugin_name]["class"],
+                                        evn["func"])
                     }
                 elif evn["event"] == "regex":
                     self.log.debug("Found regex %r in plugin %r",
-                        evn["regex"], plugin_name)
+                                   evn["regex"], plugin_name)
                     self.plugins[plugin_name]["regexes"][evn["regex"]] = {
-                        "func": getattr(self.plugins[plugin_name]["class"], evn["func"])
+                        "func": getattr(self.plugins[plugin_name]["class"],
+                                        evn["func"])
                     }
         except:
             self.log.error("Unable to (re)load %s:", plugin_name)
             traceback.print_exc()
 
     def reloadhandlers(self):
-        for handler in glob.glob(os.path.join(os.getcwd(), "handlers", "*.py")):
+        for handler in glob.glob(os.path.join(os.getcwd(), "handlers",
+                                 "*.py")):
             handler_name = handler.split(os.path.sep)[-1][:-3]
             if handler in self.mtimes.keys():
                 if os.path.getmtime(handler) != self.mtimes[handler]:
@@ -127,7 +134,7 @@ class BotManager(object):
         try:
             with open(self.config_path) as configfile:
                 self.config = json.load(configfile,
-                                        object_pairs_hook=utils.irc.OrderedDict)
+                                        object_pairs_hook=irc.OrderedDict)
             for name, server in self.config.items():
                 if name in self.connections:
                     self.connections[name].config = server
@@ -151,7 +158,7 @@ class BotManager(object):
             traceback.print_exc()
 
     def runall(self):
-        self.configtask = utils.task.run_every(300, self.saveconfig)
+        self.configtask = task.run_every(300, self.saveconfig)
         for bot in self.connections.values():
             t = threading.Thread(target=bot.run, args=(self,))
             t.daemon = True
@@ -189,32 +196,34 @@ class BotManager(object):
         for thread in self.threads:
             thread.join(timeout)
 
+
 class Bot(object):
 
     def __init__(self, name, config):
         self.name = name
         self.config = config
-        self.nick = utils.irc.String(self.config["nick"])
+        self.nick = irc.String(self.config["nick"])
         self.regain = False
         self.connected = False
         self.dying = False
         self.pingtask = None
         self.stickytask = None
         self.identified = False
-        self.log = utils.log.getLogger(self.name)
+        self.log = log.getLogger(self.name)
         t = threading.Thread(target=self.sendqueue)
         t.daemon = True
         t.start()
 
     def get_account(self, hostmask):
-        hmask = utils.events.NickMask(str(hostmask))
+        hmask = events.NickMask(str(hostmask))
         if hmask.nick in self.nicks:
             return self.nicks[hmask.nick]["account"]
 
     def get_flags(self, username, global_only=False, channel=None):
         flags = self.config["flags"].get(username, "")
         if channel and not global_only:
-            flags += self.get_channel_config(channel, "flags", {}).get(username, "")
+            flags += self.get_channel_config(channel, "flags", {}).get(
+                                             username, "")
         return flags
 
     def has_flag(self, hmask, flag, global_only=False, channel=None):
@@ -232,9 +241,10 @@ class Bot(object):
             return config
 
     def get_channel_factoids(self, channel, factoid=None):
-        factoids = copy.deepcopy(self.config["channels"].get("default", {}).get(
-            "factoids", {}))
-        factoids.update(self.config["channels"].get(channel, {}).get("factoids", {}))
+        factoids = copy.deepcopy(self.config["channels"].get("default",
+                                 {}).get("factoids", {}))
+        factoids.update(self.config["channels"].get(channel,
+                        {}).get("factoids", {}))
         if factoid:
             return factoids.get(factoid)
         else:
@@ -269,9 +279,9 @@ class Bot(object):
         self.tx = 0
         self.rxmsgs = 0
         self.txmsgs = 0
-        self.channels = utils.irc.Dict()
-        self.nicks = utils.irc.Dict()
-        self.server = utils.collections.Dict()
+        self.channels = irc.Dict()
+        self.nicks = irc.Dict()
+        self.server = collections.Dict()
         self.started = time.time()
         self.lastline = time.time()
         self.datadir = os.path.join(self.manager.datadir, self.name)
@@ -284,8 +294,8 @@ class Bot(object):
             "mechanisms": copy.deepcopy(self.config.get("sasl")) or [],
             "current": None
         }
-        self.nick = utils.irc.String(self.config["nick"])
-        self.opqueue = utils.irc.Dict()
+        self.nick = irc.String(self.config["nick"])
+        self.opqueue = irc.Dict()
         if self.config.get("ipv6"):
             self.sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
         else:
@@ -304,7 +314,7 @@ class Bot(object):
                                         ca_certs=ca_certs)
         try:
             self.log.info("Connecting to %s:%d as %s", self.config["host"],
-                self.config["port"], self.config["nick"])
+                          self.config["port"], self.config["nick"])
             self.sock.connect((self.config["host"], self.config["port"]))
             self.send("CAP LS")
             self.send("NICK {0}".format(self.config["nick"]))
@@ -312,13 +322,13 @@ class Bot(object):
                 self.config["ident"], self.config["realname"]))
         except:
             self.log.error("Failed to connect to %s:%d", self.config["host"],
-                self.config["port"])
+                           self.config["port"])
             traceback.print_exc()
             self.reconnect()
         else:
             try:
                 self.loop()
-            except utils.exceptions.CleanExit:
+            except exceptions.CleanExit:
                 sys.exit(0)
 
     def reconnect(self, msg="Reconnecting"):
@@ -361,11 +371,11 @@ class Bot(object):
             cmd = "PRIVMSG"
         msg = str(msg).encode("UTF-8", "ignore")
         maxlen = 400 - len("{0} {1} :\r\n".format(cmd, target).encode("UTF-8",
-            "ignore"))
+                           "ignore"))
         msgs = [msg[i:i+maxlen].decode("UTF-8", "ignore")
-            for i in range(0, len(msg), maxlen)]
+                for i in range(0, len(msg), maxlen)]
         if len(msgs) > 3:
-            paste = utils.web.paste(msg.decode("UTF-8", "ignore"))
+            paste = web.paste(msg.decode("UTF-8", "ignore"))
             sendfunc("{0} {1} :{2}".format(cmd, target, paste))
         else:
             for line in msgs:
@@ -469,7 +479,7 @@ class Bot(object):
 
     def sticky(self):
         stickychans = [c for c in self.config["channels"] if
-                        self.get_channel_config(c, "sticky")]
+                       self.get_channel_config(c, "sticky")]
         for channel in stickychans:
             if channel not in self.channels:
                 self.join(channel, self.get_channel_config(channel, "key"))
@@ -478,12 +488,13 @@ class Bot(object):
         self.sendq.append(data)
 
     def noflood(self, channel):
-        return self.is_op(channel, self.nick) or (self.is_voice(channel, self.nick)
-            and "+m" not in self.channels[channel]["modes"])
+        moderated = '+m' in self.channels[channel]['modes']
+        return self.is_op(channel, self.nick) or (self.is_voice(channel,
+                                                  self.nick) and not moderated)
 
     def is_voice(self, channel, nick):
         prefixes = [p[0] for p in self.server["prefixes"].items() if
-            p[1]["level"] == "voice"]
+                    p[1]["level"] == "voice"]
         if channel in self.channels:
             for prefix in prefixes:
                 if nick in self.channels[channel]["prefixes"][prefix]:
@@ -492,7 +503,7 @@ class Bot(object):
 
     def is_op(self, channel, nick):
         prefixes = [p[0] for p in self.server["prefixes"].items() if
-            p[1]["level"] == "op"]
+                    p[1]["level"] == "op"]
         if channel in self.channels:
             for prefix in prefixes:
                 if nick in self.channels[channel]["prefixes"][prefix]:
@@ -501,7 +512,7 @@ class Bot(object):
 
     def is_halfop(self, channel, nick):
         prefixes = [p[0] for p in self.server["prefixes"].items() if
-            p[1]["level"] == "halfop"]
+                    p[1]["level"] == "halfop"]
         if channel in self.channels:
             for prefix in prefixes:
                 if nick in self.channels[channel]["prefixes"][prefix]:
@@ -516,11 +527,13 @@ class Bot(object):
         nickmask = str(nickmask)
         if "!" not in nickmask:
             if nickmask in self.nicks:
-                nickmask = "{0}!{1}@{2}".format(nickmask, self.nicks[nickmask]["user"],
-                    self.nicks[nickmask]["host"])
+                nickmask = "{0}!{1}@{2}".format(nickmask,
+                                                self.nicks[nickmask]["user"],
+                                                self.nicks[nickmask]["host"])
             else:
                 nickmask = "{0}!*@*".format(nickmask)
-        nickmask = utils.events.NickMask(nickmask)
+        nickmask = events.NickMask(nickmask)
+        nick = nickmask.nick
         if self.server["ISUPPORT"].get("EXTBAN"):
             extban = self.parse_extban(banmask)
         if extban:
@@ -532,7 +545,7 @@ class Bot(object):
             if letter == "a":
                 account = self.get_account(nickmask)
                 if account:
-                    account = utils.irc.String(account).lower()
+                    account = irc.String(account).lower()
                 if negate and not account:
                     return True
                 elif account and banmask:
@@ -563,32 +576,33 @@ class Bot(object):
                 if negate:
                     return True
             elif letter == "r":
-                if nickmask.nick not in self.nicks:
+                if nick not in self.nicks:
                     return False
-                realname = utils.irc.String(self.nicks[nickmask.nick]["realname"]).lower()
+                realname = irc.String(self.nicks[nick]["realname"]).lower()
                 if fnmatch(realname, banmask):
                     if not negate:
                         return True
                 elif negate:
                     return True
             elif letter == "x":
-                if nickmask.nick not in self.nicks:
+                if nick not in self.nicks:
                     return False
-                cmpmask = "{0}#{1}".format(utils.irc.String(str(nickmask)).lower(),
-                    utils.irc.String(self.nicks[nickmask.nick]["realname"]).lower())
+                realname = self.nicks[nick]['realname']
+                cmpmask = "{0}#{1}".format(irc.String(str(nickmask)).lower(),
+                                           irc.String(realname).lower())
                 if fnmatch(cmpmask, banmask):
                     if not negate:
                         return True
                 elif negate:
                     return True
         else:
-            nickmask = utils.irc.String(str(nickmask)).lower()
-            banmask = utils.irc.String(str(banmask)).lower()
+            nickmask = irc.String(str(nickmask)).lower()
+            banmask = irc.String(str(banmask)).lower()
             if fnmatch(nickmask, banmask):
                 return True
             try:
-                nickmask = utils.events.NickMask(str(nickmask))
-                banmask = utils.events.NickMask(str(banmask))
+                nickmask = events.NickMask(str(nickmask))
+                banmask = events.NickMask(str(banmask))
                 ipaddr = nickmask.host
                 ipaddr = ipaddress.ip_address(ipaddr)
                 banip = banmask.host
@@ -599,16 +613,15 @@ class Bot(object):
                     return True
             except ValueError:
                 pass
-        nickmask = utils.events.NickMask(str(nickmask))
+        nickmask = events.NickMask(str(nickmask))
         if nickmask.nick in self.nicks:
             ipaddr = self.nicks[nickmask.nick].get("ip")
             if ipaddr and ipaddr != nickmask.host:
                 nickmask.host = ipaddr
                 return self.is_affected(nickmask, banmask)
-        if (nickmask.host.startswith("gateway/web/freenode") or
-            nickmask.host.startswith("gateway/web/stuxnet")):
+        if (nickmask.host.startswith("gateway/web/freenode")):
             try:
-                nickmask.host = utils.misc.hex2ip(nickmask.user)
+                nickmask.host = misc.hex2ip(nickmask.user)
                 return self.is_affected(nickmask, banmask)
             except:
                 pass
@@ -636,7 +649,7 @@ class Bot(object):
                 extban = {}
                 extban["letter"] = ebletter
                 if ":" in eb:
-                    extban["arg"] = utils.irc.String(eb.split(":", 1)[1])
+                    extban["arg"] = irc.String(eb.split(":", 1)[1])
                 if re.match("^{0}~{1}".format(ebprefix, ebletter), eb):
                     extban["negate"] = True
                 return extban
@@ -644,7 +657,7 @@ class Bot(object):
     def ban_affects(self, channel, banmask):
         if channel not in self.channels:
             return []
-        matches = utils.irc.List()
+        matches = irc.List()
         for nick in self.channels[channel]["names"]:
             if self.is_affected(nick, banmask):
                 matches.append(nick)
@@ -654,11 +667,12 @@ class Bot(object):
         nickmask = str(nickmask)
         if "!" not in nickmask:
             if nickmask in self.nicks:
-                nickmask = "{0}!{1}@{2}".format(nickmask, self.nicks[nickmask]["user"],
-                    self.nicks[nickmask]["host"])
+                nickmask = "{0}!{1}@{2}".format(nickmask,
+                                                self.nicks[nickmask]["user"],
+                                                self.nicks[nickmask]["host"])
             else:
                 return "{0}!*@*".format(nickmask)
-        nickmask = utils.events.NickMask(nickmask)
+        nickmask = events.NickMask(nickmask)
         nick = nickmask.nick
         user = nickmask.user
         host = nickmask.host
@@ -738,7 +752,6 @@ class Bot(object):
         return splitmodes
 
     def unsplit_modes(self, modes):
-        argmodes = self.getargmodes()
         unsplitmodes = [""]
         finalmodes = []
         argscount = 0
@@ -797,25 +810,29 @@ class Bot(object):
                         continue
                     self.log.debug("--> %s", line)
                     self.lastline = time.time()
-                    event = utils.events.Event(line)
+                    event = events.Event(line)
                     for handler in self.manager.handlers.values():
                         if hasattr(handler, "on_{0}".format(event.type)):
-                            func = getattr(handler, "on_{0}".format(event.type))
+                            func = getattr(handler, "on_{0}".format(
+                                           event.type))
                             func(self, event)
                     for plugin in self.manager.plugins.values():
                         if "ALL" in plugin["events"]:
-                            t = threading.Thread(target=plugin["events"]["ALL"]["func"],
+                            func = plugin["events"]["ALL"]["func"]
+                            t = threading.Thread(target=func,
                                                  args=(self, event))
                             t.daemon = True
                             t.start()
                         if event.type in plugin["events"]:
-                            t = threading.Thread(target=plugin["events"][event.type]["func"],
+                            func = plugin["events"][event.type]["func"]
+                            t = threading.Thread(target=func,
                                                  args=(self, event))
                             t.daemon = True
                             t.start()
         except socket.error:
             self.connected = False
             self.reconnect()
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

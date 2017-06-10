@@ -4,6 +4,7 @@ import utils.plugins as plugins
 import utils.hook as hook
 import utils.repl as repl
 
+
 class Exec(plugins.Plugin):
 
     def __init__(self, *args, **kwargs):
@@ -14,8 +15,8 @@ class Exec(plugins.Plugin):
     def _exec(self, bot, event, args):
         """<code>
 
-        Executes the specified code in a python interpreter and replies with
-        the result.
+        Executes the specified code in a python interpreter and replies
+        with the result.
         """
         self.console.locals.update({
             'self': self,
@@ -34,11 +35,13 @@ class Exec(plugins.Plugin):
 
         Runs the specified command in a shell and replies with the result.
         """
-        output = subprocess.check_output(args, stderr=subprocess.STDOUT, shell=True)
+        output = subprocess.check_output(args, stderr=subprocess.STDOUT,
+                                         shell=True)
         if output:
             output = output.decode('UTF-8', 'ignore').splitlines()
             for line in output:
                 if len(line) > 0:
                     bot.reply(event, line)
+
 
 Class = Exec

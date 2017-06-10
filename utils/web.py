@@ -1,5 +1,6 @@
 import requests
 
+
 def paste(payload):
     pastebin = "https://pybin.pw"
     url = "{0}/documents".format(pastebin)

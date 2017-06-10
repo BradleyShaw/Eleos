@@ -1,10 +1,12 @@
 import binascii
 import socket
 
-from . import collections, irc
+from . import irc
+
 
 def irccmp(str1, str2):
     return irc.String(str1) == irc.String(str2)
+
 
 def listreplace(lst, old, new):
     for i, v in enumerate(lst):
@@ -12,8 +14,10 @@ def listreplace(lst, old, new):
             lst.pop(i)
             lst.insert(i, new)
 
+
 def count(item, singular, plural):
     return "{0} {1}".format(item, singular if int(item) == 1 else plural)
+
 
 def hex2ip(hexip):
     hexip = binascii.unhexlify(hexip)

@@ -4,6 +4,7 @@ import time
 import utils.plugins as plugins
 import utils.hook as hook
 
+
 class Network(plugins.Plugin):
 
     def __init__(self, *args, **kwargs):
@@ -25,6 +26,7 @@ class Network(plugins.Plugin):
         now = time.time()
         if not self.queue.empty():
             replyevn, then = self.queue.get_nowait()
-            bot.reply(replyevn, "{0:.2f} seconds.".format(now - then))
+            bot.reply(replyevn, "{0:.3f} seconds.".format(now - then))
+
 
 Class = Network

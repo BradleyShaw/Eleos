@@ -1,5 +1,6 @@
 import copy
 
+
 def on_PART(bot, event):
     nick = event.source.nick
     channel = event.target

@@ -1,5 +1,6 @@
 from utils.irc import List
 
+
 def on_JOIN(bot, event):
     nick = event.source.nick
     channel = event.target

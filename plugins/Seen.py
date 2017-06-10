@@ -5,8 +5,8 @@ import os
 from utils.time import timesince
 import utils.plugins as plugins
 import utils.hook as hook
-import utils.misc as misc
 import utils.irc as irc
+
 
 class Seen(plugins.Plugin):
 
@@ -38,28 +38,32 @@ class Seen(plugins.Plugin):
         except KeyError:
             return "I have not seen {0}.".format(nick)
         else:
-            msg = "{0} was last seen in {1} {2} ago: ".format(lastseen["nick"],
-                lastseen["channel"], timesince(lastseen["time"]))
+            msg = "{0} was last seen in {1} {2} ago: ".format(
+                    lastseen["nick"], lastseen["channel"],
+                    timesince(lastseen["time"]))
             if lastseen["type"] == "message":
                 msg += "<{0}> {1}".format(lastseen["nick"], lastseen["msg"])
             elif lastseen["type"] == "action":
                 msg += "* {0} {1}".format(lastseen["nick"], lastseen["msg"])
             elif lastseen["type"] == "join":
-                msg += "--> {0} ({1}@{2}) has joined {3}".format(lastseen["nick"],
-                    lastseen["user"], lastseen["host"], lastseen["channel"])
+                msg += "--> {0} ({1}@{2}) has joined {3}".format(
+                        lastseen["nick"], lastseen["user"], lastseen["host"],
+                        lastseen["channel"])
             elif lastseen["type"] == "part":
-                msg += "<-- {0} ({1}@{2}) has left {3}".format(lastseen["nick"],
-                    lastseen["user"], lastseen["host"], lastseen["channel"])
+                msg += "<-- {0} ({1}@{2}) has left {3}".format(
+                        lastseen["nick"], lastseen["user"], lastseen["host"],
+                        lastseen["channel"])
                 if lastseen["msg"]:
                     msg += " ({0})".format(lastseen["msg"])
             elif lastseen["type"] == "quit":
-                msg += "<-- {0} ({1}@{2}) has quit".format(lastseen["nick"],
-                    lastseen["user"], lastseen["host"])
+                msg += "<-- {0} ({1}@{2}) has quit".format(
+                        lastseen["nick"], lastseen["user"], lastseen["host"])
                 if lastseen["msg"]:
                     msg += " ({0})".format(lastseen["msg"])
             return msg
 
-    def add_activity(self, event, network, nick, user, host, msg=None, channel=None):
+    def add_activity(self, event, network, nick, user, host, msg=None,
+                     channel=None):
         data = irc.Dict({
             "time": time.time(),
             "type": event,
@@ -82,7 +86,8 @@ class Seen(plugins.Plugin):
         else:
             for chan in self.seen[network]:
                 if nick in self.seen[network][chan]:
-                    if self.seen[network][chan][nick]["any"]["type"] not in ["part", "quit"]:
+                    if (self.seen[network][chan][nick]["any"]["type"] not in
+                            ["part", "quit"]):
                         data["channel"] = chan
                         self.seen[network][chan][nick]["any"] = data
         self.save_data()
@@ -91,9 +96,9 @@ class Seen(plugins.Plugin):
     def seenmsg(self, bot, event, args):
         """[<channel>] <nick>
 
-        Returns the last time <nick> was seen on <channel> and what <nick> was
-        last seen saying. <channel> is only necessary if the command isn't sent
-        in the channel itself.
+        Returns the last time <nick> was seen on <channel> and what
+        <nick> was last seen saying. <channel> is only necessary if the
+        command isn't sent in the channel itself.
         """
         try:
             args = self.space_split(args)
@@ -115,7 +120,8 @@ class Seen(plugins.Plugin):
             if event.source.nick not in bot.channels[channel]["names"]:
                 bot.reply(event, "Error: You are not in {0}.".format(channel))
                 return
-            bot.reply(event, self.get_last_activity(bot.name, channel, nick, msg=True))
+            bot.reply(event, self.get_last_activity(bot.name, channel, nick,
+                      msg=True))
 
     @hook.command(command="any")
     def seenany(self, bot, event, args):
@@ -211,5 +217,6 @@ class Seen(plugins.Plugin):
             user=event.source.user,
             host=event.source.host,
             msg=quitmsg)
+
 
 Class = Seen

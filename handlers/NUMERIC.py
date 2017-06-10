@@ -1,7 +1,7 @@
-import threading
 import time
 
 import utils.task as task
+
 
 def on_001(bot, event):
     autojoins = []
@@ -30,19 +30,23 @@ def on_001(bot, event):
     bot.pingtask = task.run_every(30, bot.ping)
     bot.stickytask = task.run_every(10, bot.sticky)
 
+
 def on_433(bot, event):
     if not bot.connected:
         bot.nick += "_"
         bot.send("NICK {0}".format(bot.nick))
+
 
 def on_437(bot, event):
     if not bot.connected:
         bot.nick += "_"
         bot.send("NICK {0}".format(bot.nick))
 
+
 def on_474(bot, event):
     channel = event.arguments[0]
     bot.msg("ChanServ", "UNBAN {0}".format(channel))
+
 
 def on_473(bot, event):
     channel = event.arguments[0]

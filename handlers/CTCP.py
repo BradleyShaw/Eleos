@@ -2,6 +2,7 @@ import subprocess
 import datetime
 import time
 
+
 def on_CTCP(bot, event):
     ctcptype = event.arguments[0].upper()
     if len(event.arguments) > 1:

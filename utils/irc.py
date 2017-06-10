@@ -4,6 +4,7 @@ import re
 
 from . import collections
 
+
 class String(collections.String):
     casemapping = {
         "upper": string.ascii_uppercase + r"[]\^",
@@ -14,6 +15,7 @@ class String(collections.String):
         pattern = re.compile(re.escape(splitter), re.I)
         return List(pattern.split(self, maxsplit))
 
+
 class Dict(collections.Dict):
     @staticmethod
     def transform_key(key):
@@ -21,12 +23,14 @@ class Dict(collections.Dict):
             key = String(key)
         return key
 
+
 class List(collections.List):
     @staticmethod
     def transform_item(item):
         if isinstance(item, six.string_types):
             item = String(item)
         return item
+
 
 class OrderedDict(collections.OrderedDict):
     @staticmethod

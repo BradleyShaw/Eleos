@@ -3,6 +3,7 @@ import re
 import utils.plugins as plugins
 import utils.hook as hook
 
+
 class User(plugins.Plugin):
 
     @hook.command(flags="a", global_only=True)
@@ -78,8 +79,9 @@ class User(plugins.Plugin):
         if user:
             bot.reply(event, user)
         else:
-            bot.reply(event, "Error: You don't appear to be identified to NickServ. "
-                "If you are, use the 'auth' command and try again.")
+            bot.reply(event, "Error: You don't appear to be identified to "
+                      "NickServ. If you are, use the 'auth' command and try "
+                      "again.")
 
     @hook.command
     def auth(self, bot, event, args):
@@ -103,7 +105,8 @@ class User(plugins.Plugin):
             user = bot.get_account(event.source)
             if not user:
                 bot.reply(event, "Error: You don't appear to be identified to "
-                    "NickServ. If you are, use the 'auth' command and try again.")
+                          "NickServ. If you are, use the 'auth' command and "
+                          "try again.")
                 return
         else:
             user = self.space_split(args)[0]
@@ -115,5 +118,6 @@ class User(plugins.Plugin):
                         user, event.target, chanflags, globalflags))
         else:
             bot.reply(event, "Flags for {0}: {1}".format(user, globalflags))
+
 
 Class = User

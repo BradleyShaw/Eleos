@@ -1,6 +1,7 @@
 import code
 import sys
 
+
 class Repl(code.InteractiveConsole):
     '''Interactive Python Console class'''
     def __init__(self, items=None):
@@ -25,7 +26,7 @@ class Repl(code.InteractiveConsole):
 
     def showtraceback(self):
         exc_type, value, lasttb = sys.exc_info()
-        self._buffer+="{0}: {1}".format(exc_type.__name__, value)
+        self._buffer += "{0}: {1}".format(exc_type.__name__, value)
 
     def showsyntaxerror(self, *args):
         self.showtraceback()

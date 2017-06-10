@@ -1,6 +1,7 @@
 from utils.irc import List
 
-def on_352(bot, event): # WHO
+
+def on_352(bot, event):  # WHO
     nick = event.arguments[4]
     user = event.arguments[1]
     host = event.arguments[2]
@@ -13,7 +14,7 @@ def on_352(bot, event): # WHO
     bot.nicks[nick]["user"] = user
     bot.nicks[nick]["host"] = host
     bot.nicks[nick]["realname"] = realname
-    bot.nicks[nick]["account"] = None # WHO replies don't contain the account
+    bot.nicks[nick]["account"] = None  # WHO replies don't contain the account
     bot.nicks[nick]["ip"] = None
     if channel != "*":
         if channel not in bot.nicks[nick]["channels"]:
@@ -24,11 +25,11 @@ def on_352(bot, event): # WHO
             if nick not in bot.channels[channel]["prefixes"][char]:
                 bot.channels[channel]["prefixes"][char].append(nick)
 
-def on_354(bot, event): # WHOX
+
+def on_354(bot, event):  # WHOX
     magic = event.arguments[0]
-    # WHOX can have different parameters, so
-    # if the reply doesn't have our magic number
-    # then let's ignore it to avoid IndexError later
+    # WHOX can have different parameters, so if the reply doesn't have
+    # our magic number then let's ignore it to avoid IndexError later
     if magic != "158":
         return
     channel = event.arguments[1]
