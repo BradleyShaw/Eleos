@@ -1,5 +1,6 @@
-import threading
 import re
+
+import utils.threads as threads
 
 
 def on_PRIVMSG(bot, event):
@@ -11,10 +12,7 @@ def on_PRIVMSG(bot, event):
         for regex, cfg in plugin["regexes"].items():
             matches = re.findall(regex, msg)
             if matches:
-                t = threading.Thread(target=cfg["func"], args=(bot, event,
-                                                               matches))
-                t.daemon = True
-                t.start()
+                threads.run(cfg["func"], bot, event, matches)
     prefix = bot.get_channel_config(event.target, "prefix")
     if ((len(prefix) > 0 and msg.startswith(prefix)) or
             msg.startswith(bot.nick) or event.target == bot.nick):
@@ -61,11 +59,8 @@ def on_PRIVMSG(bot, event):
                                          channel) or flag == "A"):
                             bot.log.info("%s called %r in %s", event.source,
                                          command, target)
-                            t = threading.Thread(
-                                target=data["commands"][command]["func"],
-                                args=(bot, event, args))
-                            t.daemon = True
-                            t.start()
+                            threads.run(data["commands"][command]["func"], bot,
+                                        event, args)
                             break
                     else:
                         bot.log.debug("%s tried to use command %r from plugin "
@@ -95,11 +90,9 @@ def on_PRIVMSG(bot, event):
                                              channel) or flag == "A"):
                                 bot.log.info("%s called %r in %s",
                                              event.source, command, target)
-                                t = threading.Thread(
-                                    target=plugin["commands"][command]["func"],
-                                    args=(bot, event, args))
-                                t.daemon = True
-                                t.start()
+                                threads.run(
+                                    plugin["commands"][command]["func"], bot,
+                                    event, args)
                                 return
                         bot.log.debug("%s tried to use command %r but does "
                                       "not have required flag(s) (%s)",

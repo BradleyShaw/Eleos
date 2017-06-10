@@ -3,7 +3,6 @@ from fnmatch import fnmatch
 import importlib
 import ipaddress
 import threading
-import traceback
 import socket
 import queue
 import copy
@@ -19,6 +18,7 @@ import requests
 
 import utils.collections as collections
 import utils.exceptions as exceptions
+import utils.threads as threads
 import utils.events as events
 import utils.hook as hook
 import utils.misc as misc
@@ -59,8 +59,8 @@ class BotManager(object):
                 handler = importlib.reload(handler)
             self.handlers[handler_name] = handler
         except:
-            self.log.error("Unable to (re)load %s:", handler_name)
-            traceback.print_exc()
+            self.log.error("Unable to (re)load %s:", handler_name,
+                           exc_info=sys.exc_info())
 
     def importplugin(self, plugin_name, reload=False):
         try:
@@ -102,8 +102,8 @@ class BotManager(object):
                                         evn["func"])
                     }
         except:
-            self.log.error("Unable to (re)load %s:", plugin_name)
-            traceback.print_exc()
+            self.log.error("Unable to (re)load %s:", plugin_name,
+                           exc_info=sys.exc_info())
 
     def reloadhandlers(self):
         for handler in glob.glob(os.path.join(os.getcwd(), "handlers",
@@ -140,8 +140,8 @@ class BotManager(object):
                     self.connections[name].config = server
             self.log.debug("(Re)Loaded config.")
         except:
-            self.log.error("Unable to (re)load config:")
-            traceback.print_exc()
+            self.log.error("Unable to (re)load config:",
+                           exc_info=sys.exc_info())
             if len(self.threads) == 0:
                 sys.exit(1)
 
@@ -154,8 +154,7 @@ class BotManager(object):
             os.replace(tmpconfig, self.config_path)
             self.log.debug("Config saved to file")
         except:
-            self.log.error("Unable to save config:")
-            traceback.print_exc()
+            self.log.error("Unable to save config:", exc_info=sys.exc_info())
 
     def runall(self):
         self.configtask = task.run_every(300, self.saveconfig)
@@ -320,10 +319,9 @@ class Bot(object):
             self.send("NICK {0}".format(self.config["nick"]))
             self.send("USER {0} * * :{1}".format(
                 self.config["ident"], self.config["realname"]))
-        except:
+        except Exception:
             self.log.error("Failed to connect to %s:%d", self.config["host"],
-                           self.config["port"])
-            traceback.print_exc()
+                           self.config["port"], exc_info=sys.exc_info())
             self.reconnect()
         else:
             try:
@@ -818,17 +816,11 @@ class Bot(object):
                             func(self, event)
                     for plugin in self.manager.plugins.values():
                         if "ALL" in plugin["events"]:
-                            func = plugin["events"]["ALL"]["func"]
-                            t = threading.Thread(target=func,
-                                                 args=(self, event))
-                            t.daemon = True
-                            t.start()
+                            threads.run(plugin["events"]["ALL"]["func"], self,
+                                        event)
                         if event.type in plugin["events"]:
-                            func = plugin["events"][event.type]["func"]
-                            t = threading.Thread(target=func,
-                                                 args=(self, event))
-                            t.daemon = True
-                            t.start()
+                            threads.run(plugin["events"][event.type]["func"],
+                                        self, event)
         except socket.error:
             self.connected = False
             self.reconnect()

@@ -261,7 +261,7 @@ class Admin(plugins.Plugin):
                 if "factoids" not in bot.config["channels"]["default"]:
                     bot.reply(event, "Error: There are no global factoids.")
                     return
-                if (factoid not in 
+                if (factoid not in
                         bot.config["channels"]["default"]["factoids"]):
                     bot.reply(event, "Error: There is no such factoid.")
                     return
