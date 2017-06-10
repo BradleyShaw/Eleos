@@ -1,5 +1,6 @@
 before_script:
   - pip install -r requirements.txt
+  - pip install flake8
   - cp test/Test.py plugins/
   - cp test/config.json ./
   - sed -i "s/VERSION/$(python -V 2>&1 | awk '{ print $2 }' | sed 's/\./-/g')/" config.json
@@ -9,6 +10,7 @@ before_script:
     - master
   script:
     - python eleos.py config.json
+    - flake8 -v
 
 python-3.3:
   <<: *test
