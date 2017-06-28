@@ -486,7 +486,7 @@ class Bot(object):
         self.sendq.append(data)
 
     def noflood(self, channel):
-        moderated = '+m' in self.channels[channel]['modes']
+        moderated = '+m' in self.channels.get(channel, {}).get('modes', '')
         return self.is_op(channel, self.nick) or (self.is_voice(channel,
                                                   self.nick) and not moderated)
 
