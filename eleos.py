@@ -796,6 +796,41 @@ class Bot(object):
             del(self.opqueue[channel])
             return False
 
+    def hunt_command(self, command, plugin=None):
+        if not plugin:
+            plugins = []
+            for name, data in self.manager.plugins.items():
+                if command in data['commands']:
+                    plugins.append(name)
+            if len(plugins) != 1:
+                return plugins if plugins else None
+            plugin = plugins[0]
+        if plugin not in self.manager.plugins:
+            return
+        data = self.manager.plugins[plugin]
+        if command not in data['commands']:
+            return
+        return data['commands'][command]
+
+    def check_perms(self, hmask, perms, channel=None):
+        global_only = perms['global']
+        flags = perms['flags']
+        for flag in flags:
+            if self.has_flag(hmask, flag, global_only, channel) or flag == 'A':
+                return True
+        return False
+
+    def get_factoid(self, channel, factoid, args):
+        factoids = self.get_channel_factoids(channel)
+        if factoid not in factoids:
+            return
+        factoid = factoids[factoid]
+        args = args.strip(' ').split(' ')
+        if len(args) > 0:
+            if args[0] in self.nicks:
+                factoid = '{0}: {1}'.format(args[0], factoid)
+        return factoid
+
     def loop(self):
         try:
             while True:
