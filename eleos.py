@@ -226,6 +226,7 @@ class Bot(object):
         return flags
 
     def has_flag(self, hmask, flag, global_only=False, channel=None):
+        global_only = True
         user = self.get_account(hmask)
         if not user:
             return False
