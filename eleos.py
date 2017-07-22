@@ -31,6 +31,7 @@ import utils.web as web
 class BotManager(object):
 
     def __init__(self, config_file):
+        self._stop = threading.Event()
         self.connections = {}
         self.handlers = {}
         self.mtimes = {}
@@ -164,8 +165,7 @@ class BotManager(object):
             t.start()
             self.threads.append(t)
         try:
-            while True:
-                time.sleep(5)
+            self._stop.wait()
         except KeyboardInterrupt:
             self.die('Ctrl-C at console.')
 
@@ -178,7 +178,7 @@ class BotManager(object):
             self.wait_on_threads(5)
         except KeyboardInterrupt:
             pass
-        sys.exit(0)
+        self._stop.set()
 
     def restart(self, msg=None):
         self.configtask.stop()
@@ -188,7 +188,7 @@ class BotManager(object):
         try:
             self.wait_on_threads(5)
         except KeyboardInterrupt:
-            sys.exit(0)
+            self._stop.set()
         os.execv(sys.executable, [sys.executable] + sys.argv)
 
     def wait_on_threads(self, timeout=None):
