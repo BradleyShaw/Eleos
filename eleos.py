@@ -249,6 +249,16 @@ class Bot(object):
         else:
             return factoids
 
+    def get_channel_aliases(self, channel, alias=None):
+        aliases = copy.deepcopy(self.config['channels'].get('default',
+                                {}).get('aliases', {}))
+        aliases.update(self.config['channels'].get(channel, {}).get('aliases',
+                       {}))
+        if alias:
+            return aliases.get(alias)
+        else:
+            return aliases
+
     def recv(self):
         if self.sock:
             part = ''
@@ -830,6 +840,33 @@ class Bot(object):
             if args[0] in self.nicks:
                 factoid = '{0}: {1}'.format(args[0], factoid)
         return factoid
+
+    def get_alias(self, channel, alias, args):
+        aliases = self.get_channel_aliases(channel)
+        if alias not in aliases:
+            return
+        alias = aliases[alias]
+        if len(args) > 0:
+            alias = '{0} {1}'.format(alias, args)
+        return self.parse_command(alias)
+
+    def parse_command(self, cmd):
+        cmd = cmd.split(' ', 1)
+        plugin = None
+        command = cmd[0]
+        if len(cmd) > 1:
+            args = cmd[1]
+            cmd = ' '.join(cmd).split(' ', 2)
+            if self.hunt_command(cmd[1], cmd[0]):
+                plugin = cmd[0]
+                command = cmd[1]
+                if len(cmd) > 2:
+                    args = cmd[2]
+                else:
+                    args = ''
+        else:
+            args = ''
+        return (plugin, command, args)
 
     def loop(self):
         try:

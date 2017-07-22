@@ -26,23 +26,10 @@ def on_PRIVMSG(bot, event):
                     return
             else:
                 return
-        plugin = None
         if len(prefix) > 0:
             if msg[0].startswith(prefix):
                 msg[0] = msg[0].replace(prefix, '', 1)
-        command = msg[0]
-        if len(msg) > 1:
-            args = msg[1]
-            msg = ' '.join(msg).split(' ', 2)
-            if bot.hunt_command(msg[1], msg[0]):
-                plugin = msg[0]
-                command = msg[1]
-                if len(msg) > 2:
-                    args = msg[2]
-                else:
-                    args = ''
-        else:
-            args = ''
+        plugin, command, args = bot.parse_command(' '.join(msg))
         data = bot.hunt_command(command, plugin)
         if type(data) is list:
             plugins = '{0} and {1}'.format(', '.join(data[:-1]), data[-1])
@@ -51,6 +38,22 @@ def on_PRIVMSG(bot, event):
                       'command you would like to use.'.format(command,
                                                               plugins))
             return
+        if not data:
+            possible = []
+            if plugin:
+                if len(args) > 0:
+                    possible.append((plugin, '{0} {1}'.format(command, args)))
+                else:
+                    possible.append((plugin, command))
+            possible.append((command, args))
+            for alias in possible:
+                aliasdata = bot.get_alias(event.target, *alias)
+                if not aliasdata:
+                    continue
+                data = bot.hunt_command(aliasdata[1], aliasdata[0])
+                if data:
+                    args = aliasdata[2]
+                    break
         if data:
             channel = (event.target if bot.is_channel(event.target)
                        else None)

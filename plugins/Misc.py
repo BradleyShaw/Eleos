@@ -63,6 +63,12 @@ class Misc(plugins.Plugin):
                 bot.reply(event, 'Error: No help is available for that '
                           'command.')
         else:
+            for alias in [i for i in [plugin, command] if i]:
+                aliascmd = bot.get_channel_aliases(event.target, alias)
+                if aliascmd:
+                    bot.reply(event, '{0} -- Alias for {1}'.format(alias,
+                              repr(aliascmd)))
+                    return
             bot.reply(event, 'Error: There is no such command.')
 
     @hook.command
@@ -176,6 +182,33 @@ class Misc(plugins.Plugin):
                 bot.reply(event, ', '.join(factoids))
             else:
                 bot.reply(event, 'No factoids found.')
+
+    @hook.command
+    def aliases(self, bot, event, args):
+        '''[<channel>|--global]
+
+        Lists aliases for <channel> or globally. <channel> is only
+        required if the command isn't sent in the channel itself.
+        '''
+        try:
+            args = self.space_split(args)
+            if event.target == bot.nick:
+                channel = args[0]
+            elif len(args) > 0:
+                if args[0].lower() == '--global':
+                    channel = 'default'
+                else:
+                    channel = args[0]
+            else:
+                channel = event.target
+        except IndexError:
+            bot.reply(event, self.get_help('aliases'))
+        else:
+            aliases = sorted(bot.get_channel_aliases(channel).keys())
+            if len(aliases) > 0:
+                bot.reply(event, ', '.join(aliases))
+            else:
+                bot.reply(event, 'No aliases found.')
 
 
 Class = Misc
