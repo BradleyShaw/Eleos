@@ -6,8 +6,8 @@ import re
 
 class String(six.text_type):
     casemapping = {
-        "upper": string.ascii_uppercase,
-        "lower": string.ascii_lowercase
+        'upper': string.ascii_uppercase,
+        'lower': string.ascii_lowercase
     }
 
     def __lt__(self, other):
@@ -24,8 +24,8 @@ class String(six.text_type):
 
     def lower(self):
         translation = str.maketrans(
-            self.casemapping["upper"],
-            self.casemapping["lower"]
+            self.casemapping['upper'],
+            self.casemapping['lower']
         )
         return (
             self.translate(translation) if self
@@ -34,8 +34,8 @@ class String(six.text_type):
 
     def upper(self):
         translation = str.maketrans(
-            self.casemapping["lower"],
-            self.casemapping["upper"]
+            self.casemapping['lower'],
+            self.casemapping['upper']
         )
         return (
             self.translate(translation) if self

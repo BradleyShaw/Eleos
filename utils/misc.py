@@ -16,7 +16,7 @@ def listreplace(lst, old, new):
 
 
 def count(item, singular, plural):
-    return "{0} {1}".format(item, singular if int(item) == 1 else plural)
+    return '{0} {1}'.format(item, singular if int(item) == 1 else plural)
 
 
 def hex2ip(hexip):

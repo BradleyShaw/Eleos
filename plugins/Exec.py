@@ -11,13 +11,13 @@ class Exec(plugins.Plugin):
         super(Exec, self).__init__(*args, **kwargs)
         self.console = repl.Repl({'self': self})
 
-    @hook.command(command=">>", flags="a")
+    @hook.command(command='>>', flags='a')
     def _exec(self, bot, event, args):
-        """<code>
+        '''<code>
 
         Executes the specified code in a python interpreter and replies
         with the result.
-        """
+        '''
         self.console.locals.update({
             'self': self,
             'bot': bot,
@@ -29,12 +29,12 @@ class Exec(plugins.Plugin):
             if len(line) > 0:
                 bot.reply(event, line)
 
-    @hook.command(command=">", flags="a")
+    @hook.command(command='>', flags='a')
     def _shell(self, bot, event, args):
-        """<command>
+        '''<command>
 
         Runs the specified command in a shell and replies with the result.
-        """
+        '''
         output = subprocess.check_output(args, stderr=subprocess.STDOUT,
                                          shell=True)
         if output:

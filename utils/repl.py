@@ -8,7 +8,7 @@ class Repl(code.InteractiveConsole):
         if items is None:
             items = {}
         code.InteractiveConsole.__init__(self, items)
-        self._buffer = ""
+        self._buffer = ''
 
     def write(self, data):
         self._buffer += str(data)
@@ -18,15 +18,15 @@ class Repl(code.InteractiveConsole):
         self.push(data)
         sys.stdout = sys.__stdout__
         result = self._buffer
-        self._buffer = ""
+        self._buffer = ''
         return result
 
     def flush(self):
-        self._buffer = ""
+        self._buffer = ''
 
     def showtraceback(self):
         exc_type, value, lasttb = sys.exc_info()
-        self._buffer += "{0}: {1}".format(exc_type.__name__, value)
+        self._buffer += '{0}: {1}'.format(exc_type.__name__, value)
 
     def showsyntaxerror(self, *args):
         self.showtraceback()

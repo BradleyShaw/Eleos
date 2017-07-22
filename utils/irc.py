@@ -7,8 +7,8 @@ from . import collections
 
 class String(collections.String):
     casemapping = {
-        "upper": string.ascii_uppercase + r"[]\^",
-        "lower": string.ascii_lowercase + r"{}|~"
+        'upper': string.ascii_uppercase + r'[]\^',
+        'lower': string.ascii_lowercase + r'{}|~'
     }
 
     def split(self, splitter=' ', maxsplit=0):

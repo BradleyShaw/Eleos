@@ -14,11 +14,11 @@ class Misc(plugins.Plugin):
 
     @hook.command(command='list')
     def listcmd(self, bot, event, args):
-        """[<plugin>]
+        '''[<plugin>]
 
         Lists the commands in the specified plugin. If no plugin is
         specified, lists all loaded plugins.
-        """
+        '''
         if args.strip() in self.manager.plugins:
             commands = sorted(self.manager.plugins[args]['commands'].keys())
             if len(commands) > 0:
@@ -31,13 +31,13 @@ class Misc(plugins.Plugin):
 
     @hook.command(command='help')
     def helpcmd(self, bot, event, args):
-        """[<plugin>] [<command>]
+        '''[<plugin>] [<command>]
 
         Gives the help information for the specified command. A plugin
         doesn't need to be specified unless the command is in more than
         one plugin. Use the 'list' command to get a list of plugins and
         commands.
-        """
+        '''
         if args == '':
             bot.reply(event, self.get_help('help'))
             return
@@ -67,18 +67,18 @@ class Misc(plugins.Plugin):
 
     @hook.command
     def ping(self, bot, event, args):
-        """takes no arguments
+        '''takes no arguments
 
         Check if the bot is alive.
-        """
+        '''
         bot.reply(event, 'Pong!')
 
     @hook.command
     def status(self, bot, event, args):
-        """takes no arguments
+        '''takes no arguments
 
         Replies with various data about the bot's status.
-        """
+        '''
         botuptime = time.timesince(self.manager.started)
         connuptime = time.timesince(bot.started)
         process = psutil.Process(os.getpid())
@@ -99,28 +99,28 @@ class Misc(plugins.Plugin):
 
     @hook.command
     def version(self, bot, event, args):
-        """takes no arguments
+        '''takes no arguments
 
         Returns the currently running version of the bot.
-        """
+        '''
         version = subprocess.getoutput('git describe')
         bot.reply(event, 'Eleos {0}'.format(version))
 
     @hook.command
     def source(self, bot, event, args):
-        """takes not arguments
+        '''takes not arguments
 
         Returns a link to the bot's source.
-        """
+        '''
         bot.reply(event, 'https://git.libertas.tech/bs/Eleos')
 
     @hook.command
     def hm(self, bot, event, args):
-        """[<nick>]
+        '''[<nick>]
 
         Returns the hostmask of <nick> (or yourself if no nick is
         specified).
-        """
+        '''
         args = self.space_split(args)
         if len(args) > 0:
             nick = args[0]
@@ -138,11 +138,11 @@ class Misc(plugins.Plugin):
 
     @hook.command
     def bm(self, bot, event, args):
-        """[<nick|hostmask>]
+        '''[<nick|hostmask>]
 
         Returns a banmask for <nick> (or yourself if no nick is
         specified).
-        """
+        '''
         args = self.space_split(args)
         if len(args) > 0:
             nick = args[0]
@@ -152,11 +152,11 @@ class Misc(plugins.Plugin):
 
     @hook.command
     def ftds(self, bot, event, args):
-        """[<channel>|--global]
+        '''[<channel>|--global]
 
         Lists factoids for <channel> or globally. <channel> is only
         required if the command isn't sent in the channel itself.
-        """
+        '''
         try:
             args = self.space_split(args)
             if event.target == bot.nick:
