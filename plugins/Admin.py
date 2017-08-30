@@ -269,5 +269,93 @@ class Admin(plugins.Plugin):
                 bot.reply(event, 'Successfully deleted factoid {0}.'.format(
                           factoid))
 
+    @hook.command(flags='a', global_only=True)
+    def setalias(self, bot, event, args):
+        '''[<channel>|--global] <alias> <command> [<args>]
+
+        Sets <alias> to <command> in <channel> or globally. <channel> is
+        only necessary if the command isn't sent in the channel itself.
+        '''
+        try:
+            args = self.space_split(args)
+            if event.target == bot.nick:
+                channel = args[0]
+                alias = args[1]
+                value = ' '.join(args[2:])
+            elif bot.is_channel(args[0]) or args[0].lower() == '--global':
+                channel = args[0] if bot.is_channel(args[0]) else None
+                alias = args[1]
+                value = ' '.join(args[2:])
+            else:
+                channel = event.target
+                alias = args[0]
+                value = ' '.join(args[1:])
+        except IndexError:
+            bot.reply(event, self.get_help('setalias'))
+        else:
+            if channel:
+                if channel not in bot.config['channels']:
+                    bot.reply(event, 'Error: There is no such channel.')
+                    return
+                if 'aliases' not in bot.config['channels'][channel]:
+                    bot.config['channels'][channel]['aliases'] = {}
+                bot.config['channels'][channel]['aliases'][alias] = value
+                bot.reply(event,
+                          'Successfully set alias {0} to {1} in {2}.'.format(
+                            alias, value, channel))
+            else:
+                if 'aliases' not in bot.config['channels']['default']:
+                    bot.config['channels']['default']['aliases'] = {}
+                bot.config['channels']['default']['aliases'][alias] = value
+                bot.reply(event, 'Successfully set alias {0} to {1}.'.format(
+                    alias, value))
+
+    @hook.command(flags='a', global_only=True)
+    def delalias(self, bot, event, args):
+        '''[<channel>|--global] <alias>
+
+        Deletes <alias> in <channel>. <channel> is only necessary if
+        the command isn't sent in the channel itself.
+        '''
+        try:
+            args = self.space_split(args)
+            if event.target == bot.nick:
+                channel = args[0]
+                alias = args[1]
+            elif bot.is_channel(args[0]) or args[0].lower() == '--global':
+                channel = args[0] if bot.is_channel(args[0]) else None
+                alias = args[1]
+            else:
+                channel = event.target
+                alias = args[0]
+        except IndexError:
+            bot.reply(event, self.get_help('delalias'))
+        else:
+            if channel:
+                if channel not in bot.config['channels']:
+                    bot.reply(event, 'Error: There is no such channel.')
+                    return
+                if 'aliases' not in bot.config['channels'][channel]:
+                    bot.reply(event, 'Error: This channel has no aliases.')
+                    return
+                if alias not in bot.config['channels'][channel]['aliases']:
+                    bot.reply(event, 'Error: There is no such alias.')
+                    return
+                del(bot.config['channels'][channel]['aliases'][alias])
+                bot.reply(event,
+                          'Successfully deleted alias {0} in {1}.'.format(
+                            alias, channel))
+            else:
+                if 'aliases' not in bot.config['channels']['default']:
+                    bot.reply(event, 'Error: There are no global aliases.')
+                    return
+                if (alias not in
+                        bot.config['channels']['default']['aliases']):
+                    bot.reply(event, 'Error: There is no such alias.')
+                    return
+                del(bot.config['channels']['default']['aliases'][alias])
+                bot.reply(event, 'Successfully deleted alias {0}.'.format(
+                          alias))
+
 
 Class = Admin

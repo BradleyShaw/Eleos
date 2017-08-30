@@ -11,7 +11,7 @@
     "password": "",
     "flags": {
       "<ACCOUNT>": "<FLAGS>"
-    }
+    },
     "channels": {
         "default": {
             "autojoin": true,
