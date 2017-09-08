@@ -310,6 +310,8 @@ class Bot(object):
             self.sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
         else:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        if self.config.get('bindaddr'):
+            self.sock.bind((self.config['bindaddr'], 0))
         if isinstance(self.config.get('ssl'), dict):
             sslcfg = self.config['ssl']
             if sslcfg.get('verify', True):
