@@ -32,6 +32,7 @@ class BotManager(object):
 
     def __init__(self, config_file):
         self._stop = threading.Event()
+        self.running = False
         self.connections = {}
         self.handlers = {}
         self.mtimes = {}
@@ -50,6 +51,7 @@ class BotManager(object):
         self.reloadplugins()
         self.addall()
         self.runall()
+        self.running = True
         self.configtask = task.run_every(300, self.saveconfig)
         try:
             self._stop.wait()
@@ -143,9 +145,10 @@ class BotManager(object):
             for name in self.config:
                 if name in self.connections:
                     self.connections[name].reloadconfig()
-            self.cleanup()
-            self.addall()
-            self.runall()
+            if self.running:
+                self.cleanup()
+                self.addall()
+                self.runall()
             self.log.debug('(Re)Loaded config.')
         except:
             self.log.error('Unable to (re)load config:',
