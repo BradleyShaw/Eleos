@@ -48,9 +48,13 @@ class BotManager(object):
         self.reloadconfig()
         self.reloadhandlers()
         self.reloadplugins()
-        for name, server in self.config.items():
-            self.connections[name] = Bot(name, server)
+        self.addall()
         self.runall()
+        self.configtask = task.run_every(300, self.saveconfig)
+        try:
+            self._stop.wait()
+        except KeyboardInterrupt:
+            self.die('Ctrl-C at console.')
 
     def importhandler(self, handler_name, reload=False):
         try:
@@ -136,9 +140,12 @@ class BotManager(object):
             with open(self.config_path) as configfile:
                 self.config = json.load(configfile,
                                         object_pairs_hook=irc.OrderedDict)
-            for name, server in self.config.items():
+            for name in self.config:
                 if name in self.connections:
-                    self.connections[name].config = server
+                    self.connections[name].reloadconfig()
+            self.cleanup()
+            self.addall()
+            self.runall()
             self.log.debug('(Re)Loaded config.')
         except:
             self.log.error('Unable to (re)load config:',
@@ -157,17 +164,32 @@ class BotManager(object):
         except:
             self.log.error('Unable to save config:', exc_info=sys.exc_info())
 
-    def runall(self):
-        self.configtask = task.run_every(300, self.saveconfig)
-        for bot in self.connections.values():
+    def addbot(self, name):
+        if name not in self.connections:
+            self.connections[name] = Bot(name, self.config[name])
+
+    def addall(self):
+        for name in self.config:
+            self.addbot(name)
+
+    def runbot(self, name):
+        bot = self.connections[name]
+        if not bot.running:
             t = threading.Thread(target=bot.run, args=(self,))
             t.daemon = True
             t.start()
             self.threads.append(t)
-        try:
-            self._stop.wait()
-        except KeyboardInterrupt:
-            self.die('Ctrl-C at console.')
+
+    def runall(self):
+        for name in self.connections:
+            self.runbot(name)
+
+    def cleanup(self):
+        for name in copy.deepcopy(list(self.connections.keys())):
+            if name not in self.config:
+                self.connections[name].quit('Network removed from config',
+                                            True)
+                del(self.connections[name])
 
     def die(self, msg=None):
         self.configtask.stop()
@@ -208,6 +230,7 @@ class Bot(object):
         self.pingtask = None
         self.stickytask = None
         self.identified = False
+        self.running = False
         self.log = log.getLogger(self.name)
         t = threading.Thread(target=self.sendqueue)
         t.daemon = True
@@ -284,6 +307,7 @@ class Bot(object):
             self.log.debug('Dropping message %r; not connected', data)
 
     def run(self, manager):
+        self.running = True
         self.manager = manager
         self.rx = 0
         self.tx = 0
@@ -494,6 +518,32 @@ class Bot(object):
         for channel in stickychans:
             if channel not in self.channels:
                 self.join(channel, self.get_channel_config(channel, 'key'))
+
+    def reloadconfig(self):
+        self.config = self.manager.config[self.name]
+        self.cleanup()
+        self.autojoin()
+
+    def cleanup(self):
+        for channel in copy.deepcopy(list(self.channels.keys())):
+            if channel == 'default':
+                continue
+            elif channel not in self.config['channels']:
+                self.part(channel, 'Channel removed from config')
+
+    def autojoin(self):
+        autojoins = []
+        keys = []
+        for channel in self.config['channels']:
+            if channel in self.channels or channel == 'default':
+                continue
+            elif self.get_channel_config(channel, 'autojoin'):
+                autojoins.append(channel)
+                key = self.get_channel_config(channel, 'key')
+                if key:
+                    keys.append(key)
+        if len(autojoins) > 0:
+            self.multijoin(autojoins, keys)
 
     def send(self, data):
         self.sendq.append(data)
