@@ -283,6 +283,13 @@ class Bot(object):
         else:
             return aliases
 
+    def get_channel_ignores(self, channel):
+        ignores = copy.deepcopy(self.config['channels'].get('default',
+                                {}).get('ignores', []))
+        ignores += self.config['channels'].get(channel, {}).get('ignores', [])
+        ignores = irc.List(ignores)
+        return ignores
+
     def recv(self):
         if self.sock:
             part = ''
@@ -582,6 +589,13 @@ class Bot(object):
 
     def is_channel(self, string):
         return string[0] in self.server['ISUPPORT']['CHANTYPES']
+
+    def is_ignored(self, channel, mask):
+        ignores = self.get_channel_ignores(channel)
+        for ignore in ignores:
+            if self.is_affected(mask, ignore):
+                return True
+        return False
 
     def is_affected(self, nickmask, banmask):
         extban = None

@@ -4,7 +4,7 @@ import utils.threads as threads
 
 
 def on_PRIVMSG(bot, event):
-    if bot.has_flag(event.source, 'I'):
+    if bot.is_ignored(event.target, event.source):
         bot.log.debug('Ignoring message from %s', event.source)
         return
     msg = event.arguments[0]

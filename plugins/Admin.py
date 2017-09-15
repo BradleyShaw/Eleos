@@ -2,6 +2,7 @@ import subprocess
 
 import utils.plugins as plugins
 import utils.hook as hook
+import utils.misc as misc
 
 
 class Admin(plugins.Plugin):
@@ -356,6 +357,88 @@ class Admin(plugins.Plugin):
                 del(bot.config['channels']['default']['aliases'][alias])
                 bot.reply(event, 'Successfully deleted alias {0}.'.format(
                           alias))
+
+    @hook.command(flags='a', global_only=True)
+    def ignore(self, bot, event, args):
+        '''[<channel>|--global] <nick|hostmask> [<nick|hostmask>...]
+
+        Ignores <nick> in <channel>. <channel> is only necessary if the
+        command isn't sent in the channel itself.
+        '''
+        ignores = []
+        try:
+            args = self.space_split(args)
+            if event.target == bot.nick:
+                channel = args[0]
+                nicks = args[1:]
+            else:
+                if bot.is_channel(args[0]) or args[0] == '--global':
+                    channel = args[0] if args[0] != '--global' else 'default'
+                    nicks = args[1:]
+                else:
+                    channel = event.target
+                    nicks = args
+        except IndexError:
+            bot.reply(event, self.get_help('ignore'))
+        else:
+            if channel not in bot.channels:
+                bot.reply(event, 'Error: I\'m not in {0}.'.format(channel))
+                return
+            for nick in nicks:
+                if bot.is_banmask(nick):
+                    banmask = nick
+                else:
+                    banmask = bot.banmask(nick)
+                if banmask not in bot.get_channel_ignores(channel):
+                    ignores.append(banmask)
+            if len(ignores) == 0:
+                bot.reply(event, 'Ignore list unchanged')
+            else:
+                if 'ignores' not in bot.config['channels'][channel]:
+                    bot.config['channels'][channel]['ignores'] = []
+                bot.config['channels'][channel]['ignores'] += ignores
+                bot.reply(event, 'Successfully ignored {0}'.format(
+                          misc.parselist(ignores)))
+
+    @hook.command(flags='a', global_only=True)
+    def unignore(self, bot, event, args):
+        '''[<channel>|--global] <nick|hostmask> [<nick|hostmask>...]
+
+        Unignores <nick> in <channel>. <channel> is only necessary if
+        the command isn't sent in the channel itself.
+        '''
+        unignores = []
+        try:
+            args = self.space_split(args)
+            if event.target == bot.nick:
+                channel = args[0]
+                nicks = args[1:]
+            else:
+                if bot.is_channel(args[0]) or args[0] == '--global':
+                    channel = args[0] if args[0] != '--global' else 'default'
+                    nicks = args[1:]
+                else:
+                    channel = event.target
+                    nicks = args
+        except IndexError:
+            bot.reply(event, self.get_help('unignore'))
+        else:
+            if channel not in bot.channels:
+                bot.reply('Error: I\'m not in {0}.'.format(channel))
+                return
+            if 'ignores' not in bot.config['channels'][channel]:
+                bot.reply(event, 'Ignore list unchanged')
+            for nick in nicks:
+                for ignore in bot.config['channels'][channel]['ignores']:
+                    if bot.is_affected(nick, ignore):
+                        unignores.append(ignore)
+            if len(unignores) == 0:
+                bot.reply(event, 'Ignore list unchanged')
+            else:
+                for ignore in unignores:
+                    bot.config['channels'][channel]['ignores'].remove(ignore)
+                bot.reply(event, 'Successfully unignored {0}'.format(
+                          misc.parselist(unignores)))
 
 
 Class = Admin
