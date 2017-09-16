@@ -938,6 +938,17 @@ class Bot(object):
             args = ''
         return (plugin, command, args)
 
+    def handle_event(self, event):
+        for handler in self.manager.handlers.values():
+            if hasattr(handler, 'on_{0}'.format(event.type)):
+                func = getattr(handler, 'on_{0}'.format(event.type))
+                func(self, event)
+        for plugin in self.manager.plugins.values():
+            if 'ALL' in plugin['events']:
+                threads.run(plugin['events']['ALL']['func'], self, event)
+            if event.type in plugin['events']:
+                threads.run(plugin['events'][event.type]['func'], self, event)
+
     def loop(self):
         try:
             while True:
@@ -951,18 +962,7 @@ class Bot(object):
                     self.log.debug('--> %s', line)
                     self.lastline = time.time()
                     event = events.Event(line)
-                    for handler in self.manager.handlers.values():
-                        if hasattr(handler, 'on_{0}'.format(event.type)):
-                            func = getattr(handler, 'on_{0}'.format(
-                                           event.type))
-                            func(self, event)
-                    for plugin in self.manager.plugins.values():
-                        if 'ALL' in plugin['events']:
-                            threads.run(plugin['events']['ALL']['func'], self,
-                                        event)
-                        if event.type in plugin['events']:
-                            threads.run(plugin['events'][event.type]['func'],
-                                        self, event)
+                    self.handle_event(event)
         except socket.error:
             self.connected = False
             self.reconnect()
