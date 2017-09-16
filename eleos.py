@@ -405,7 +405,7 @@ class Bot(object):
         if die:
             self.dying = True
 
-    def msg(self, target, msg, notice=False):
+    def msg(self, target, msg, notice=False, echo=True):
         if self.noflood(target):
             sendfunc = self.send_raw
         else:
@@ -422,9 +422,23 @@ class Bot(object):
         if len(msgs) > 3:
             paste = web.paste(msg.decode('UTF-8', 'ignore'))
             sendfunc('{0} {1} :{2}'.format(cmd, target, paste))
+            if echo:
+                event = events.Event(':{0}!{1}@{2} {3} {4} :{5}'.format(
+                                     self.nick,
+                                     self.nicks[self.nick]['user'],
+                                     self.nicks[self.nick]['host'],
+                                     cmd, target, paste))
+                self.handle_event(event)
         else:
             for line in msgs:
                 sendfunc('{0} {1} :{2}'.format(cmd, target, line))
+                if echo:
+                    event = events.Event(':{0}!{1}@{2} {3} {4} :{5}'.format(
+                                         self.nick,
+                                         self.nicks[self.nick]['user'],
+                                         self.nicks[self.nick]['host'],
+                                         cmd, target, line))
+                    self.handle_event(event)
 
     def reply(self, event, msg):
         if event.target == self.nick:
