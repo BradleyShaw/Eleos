@@ -33,8 +33,8 @@ class BotManager(object):
     def __init__(self, config_file):
         self._stop = threading.Event()
         self.running = False
-        self.connections = {}
-        self.handlers = {}
+        self.connections = irc.Dict()
+        self.handlers = irc.Dict()
         self.mtimes = {}
         self.config = {}
         self.threads = []
