@@ -9,8 +9,19 @@ class Event(object):
         self.type = None
         self.target = None
         self.arguments = []
+        self.tags = []
         args = ''
         args1 = ''
+        if raw.startswith('@'):
+            tags, raw = raw.split(' ', 1)
+            tags = tags.replace('@', '', 1)
+            tags = tags.split(';')
+            for tag in tags:
+                if '=' in tag:
+                    tag = tag.split('=', 1)
+                    self.tags.append({tag[0]: tag[1]})
+                else:
+                    self.tags.append(tag)
         if ' :' in raw:
             raw, args1 = raw.split(' :', 1)
         if raw.startswith(':'):
@@ -65,6 +76,7 @@ class Event(object):
             'source: {source}, '
             'target: {target}, '
             'arguments: {arguments}, '
+            'tags: {tags}'
             'raw: {raw}'
         )
         return tmpl.format(**vars(self))
