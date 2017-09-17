@@ -14,12 +14,16 @@ before_script:
 
 python-3.3:
   <<: *test
-  image: python:3.3
+  image: python:3.3-alpine
 
 python-3.4:
   <<: *test
-  image: python:3.4
+  image: python:3.4-alpine
 
 python-3.5:
   <<: *test
-  image: python:3.5
+  image: python:3.5-alpine
+
+python-3.6:
+  <<: *test
+  image: python:3.6-alpine
