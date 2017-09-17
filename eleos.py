@@ -634,7 +634,30 @@ class Bot(object):
             if banmask:
                 banmask = banmask.lower()
             negate = extban.get('negate', False)
-            if letter == 'a':
+            if letter == '&':
+                ebprefix = self.server['ISUPPORT']['EXTBAN'][0]
+                extbans = banmask.split(',')
+                for eb in extbans:
+                    eb = '{0}{1}'.format(ebprefix, eb)
+                    if not self.is_affected(nickmask, eb):
+                        break
+                else:
+                    if not negate:
+                        return True
+                if negate:
+                    return True
+                return False
+            elif letter == '|':
+                ebprefix = self.server['ISUPPORT']['EXTBAN'][0]
+                extbans = banmask.split(',')
+                for eb in extbans:
+                    eb = '{0}{1}'.format(ebprefix, eb)
+                    if self.is_affected(nickmask, eb) and not negate:
+                        return True
+                if negate:
+                    return True
+                return False
+            elif letter == 'a':
                 account = self.get_account(nickmask)
                 if account:
                     account = irc.String(account).lower()
@@ -667,6 +690,12 @@ class Bot(object):
                             return True
                 if negate:
                     return True
+            elif letter == 'm':
+                if self.is_affected(nickmask, banmask) and not negate:
+                    return True
+                if negate:
+                    return True
+                return False
             elif letter == 'r':
                 if nick not in self.nicks:
                     return False
