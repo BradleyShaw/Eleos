@@ -508,7 +508,7 @@ class Bot(object):
         while True:
             if len(self.sendq) > 0:
                 if not burstdone:
-                    for line in self.sendq[:4]:
+                    for line in self.sendq[:9]:
                         self.send_raw(line)
                         self.sendq.remove(line)
                     burstdone = True
@@ -517,7 +517,7 @@ class Bot(object):
                 else:
                     line = self.sendq.pop(0)
                     self.send_raw(line)
-                    time.sleep(1)
+                    time.sleep(2)
             else:
                 burstdone = False
             time.sleep(0.2)

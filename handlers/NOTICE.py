@@ -3,6 +3,7 @@ def on_NOTICE(bot, event):
     if event.source.nick == 'NickServ':
         if (not bot.identified and
                 msg.startswith('You are now identified')):
+            bot.identified = True
             bot.autojoin()
     elif event.source.nick == 'ChanServ':
         if msg.startswith('You are not authorized to (de)op'):
