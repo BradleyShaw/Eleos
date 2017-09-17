@@ -8,14 +8,14 @@ class User(plugins.Plugin):
 
     @hook.command(flags='a', global_only=True)
     def setflags(self, bot, event, args):
-        '''<username> <channel>|--global <flags>
+        '''<channel>|--global <username> <flags>
 
         Sets <flags> on <username> in <channel> or globally.
         '''
         try:
             args = self.space_split(args)
-            username = args[0]
-            channel = args[1]
+            channel = args[0]
+            username = args[1]
             flags = args[2]
         except IndexError:
             bot.reply(event, self.get_help('setflags'))

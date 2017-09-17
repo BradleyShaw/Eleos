@@ -192,7 +192,7 @@ class Admin(plugins.Plugin):
         try:
             args = self.space_split(args)
             if event.target == bot.nick:
-                channel = args[0]
+                channel = args[0] if args[0].lower() != '--global' else None
                 factoid = args[1]
                 value = ' '.join(args[2:])
             elif bot.is_channel(args[0]) or args[0].lower() == '--global':
@@ -233,7 +233,7 @@ class Admin(plugins.Plugin):
         try:
             args = self.space_split(args)
             if event.target == bot.nick:
-                channel = args[0]
+                channel = args[0] if args[0].lower() != '--global' else None
                 factoid = args[1]
             elif bot.is_channel(args[0]) or args[0].lower() == '--global':
                 channel = args[0] if bot.is_channel(args[0]) else None
@@ -280,7 +280,7 @@ class Admin(plugins.Plugin):
         try:
             args = self.space_split(args)
             if event.target == bot.nick:
-                channel = args[0]
+                channel = args[0] if args[0].lower() != '--global' else None
                 alias = args[1]
                 value = ' '.join(args[2:])
             elif bot.is_channel(args[0]) or args[0].lower() == '--global':
@@ -321,7 +321,7 @@ class Admin(plugins.Plugin):
         try:
             args = self.space_split(args)
             if event.target == bot.nick:
-                channel = args[0]
+                channel = args[0] if args[0].lower() != '--global' else None
                 alias = args[1]
             elif bot.is_channel(args[0]) or args[0].lower() == '--global':
                 channel = args[0] if bot.is_channel(args[0]) else None
@@ -369,10 +369,11 @@ class Admin(plugins.Plugin):
         try:
             args = self.space_split(args)
             if event.target == bot.nick:
-                channel = args[0]
+                channel = (args[0] if args[0].lower() != '--global'
+                           else 'default')
                 nicks = args[1:]
             else:
-                if bot.is_channel(args[0]) or args[0] == '--global':
+                if bot.is_channel(args[0]) or args[0].lower() == '--global':
                     channel = args[0] if args[0] != '--global' else 'default'
                     nicks = args[1:]
                 else:
@@ -411,10 +412,11 @@ class Admin(plugins.Plugin):
         try:
             args = self.space_split(args)
             if event.target == bot.nick:
-                channel = args[0]
+                channel = (args[0] if args[0].lower() != '--global'
+                           else 'default')
                 nicks = args[1:]
             else:
-                if bot.is_channel(args[0]) or args[0] == '--global':
+                if bot.is_channel(args[0]) or args[0].lower() == '--global':
                     channel = args[0] if args[0] != '--global' else 'default'
                     nicks = args[1:]
                 else:

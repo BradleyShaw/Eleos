@@ -166,7 +166,8 @@ class Misc(plugins.Plugin):
         try:
             args = self.space_split(args)
             if event.target == bot.nick:
-                channel = args[0]
+                channel = (args[0] if args[0].lower() != '--global'
+                           else 'default')
             elif len(args) > 0:
                 if args[0].lower() == '--global':
                     channel = 'default'
@@ -193,7 +194,8 @@ class Misc(plugins.Plugin):
         try:
             args = self.space_split(args)
             if event.target == bot.nick:
-                channel = args[0]
+                channel = (args[0] if args[0].lower() != '--global'
+                           else 'default')
             elif len(args) > 0:
                 if args[0].lower() == '--global':
                     channel = 'default'
