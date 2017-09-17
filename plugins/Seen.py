@@ -1,3 +1,4 @@
+import threading
 import json
 import time
 import os
@@ -12,6 +13,7 @@ class Seen(plugins.Plugin):
 
     def __init__(self, *args, **kwargs):
         super(Seen, self).__init__(*args, **kwargs)
+        self.lock = threading.Lock()
         self.datapath = os.path.join(self.datadir, 'seen.json')
         self.load_data()
 
@@ -24,10 +26,12 @@ class Seen(plugins.Plugin):
             self.save_data()
 
     def save_data(self):
+        self.lock.acquire()
         tmpdata = '{0}.tmp'.format(self.datapath)
         with open(tmpdata, 'w') as seendata:
             json.dump(self.seen, seendata)
         os.replace(tmpdata, self.datapath)
+        self.lock.release()
 
     def get_last_activity(self, net, channel, nick, msg=False):
         try:
