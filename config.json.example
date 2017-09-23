@@ -5,7 +5,7 @@
     "ssl": {},
     "nick": "Eleos",
     "ident": "Eleos",
-    "realname": "Eleos - https://git.libertas.tech/bs/Eleos",
+    "realname": "Eleos - https://code.libertas.tech/bs/Eleos",
     "sasl": ["PLAIN"],
     "username": "",
     "password": "",

@@ -118,7 +118,7 @@ class Misc(plugins.Plugin):
 
         Returns a link to the bot's source.
         '''
-        bot.reply(event, 'https://git.libertas.tech/bs/Eleos')
+        bot.reply(event, 'https://code.libertas.tech/bs/Eleos')
 
     @hook.command
     def hm(self, bot, event, args):
