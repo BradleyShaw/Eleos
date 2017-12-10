@@ -101,8 +101,8 @@ class List(list):
 
     def __init__(self, *args, **kwargs):
         super(List, self).__init__()
-        l = list(*args, **kwargs)
-        for item in l:
+        _l = list(*args, **kwargs)
+        for item in _l:
             self.append(item)
 
     def __contains__(self, item):

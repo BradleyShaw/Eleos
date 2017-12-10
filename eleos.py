@@ -65,7 +65,7 @@ class BotManager(object):
             if reload:
                 handler = importlib.reload(handler)
             self.handlers[handler_name] = handler
-        except:
+        except Exception:
             self.log.error('Unable to (re)load %s:', handler_name,
                            exc_info=sys.exc_info())
 
@@ -108,7 +108,7 @@ class BotManager(object):
                         'func': getattr(self.plugins[plugin_name]['class'],
                                         evn['func'])
                     }
-        except:
+        except Exception:
             self.log.error('Unable to (re)load %s:', plugin_name,
                            exc_info=sys.exc_info())
 
@@ -150,7 +150,7 @@ class BotManager(object):
                 self.addall()
                 self.runall()
             self.log.debug('(Re)Loaded config.')
-        except:
+        except Exception:
             self.log.error('Unable to (re)load config:',
                            exc_info=sys.exc_info())
             if len(self.threads) == 0:
@@ -164,7 +164,7 @@ class BotManager(object):
                 configfile.write('\n')
             os.replace(tmpconfig, self.config_path)
             self.log.debug('Config saved to file')
-        except:
+        except Exception:
             self.log.error('Unable to save config:', exc_info=sys.exc_info())
 
     def addbot(self, name):
@@ -383,7 +383,7 @@ class Bot(object):
                 self.log.info('Reconnecting in 10 seconds')
                 time.sleep(10)
                 self.run(self.manager)
-        except:
+        except Exception:
             pass
 
     def quit(self, msg=None, die=False):
@@ -744,7 +744,7 @@ class Bot(object):
             try:
                 nickmask.host = misc.hex2ip(nickmask.user)
                 return self.is_affected(nickmask, banmask)
-            except:
+            except Exception:
                 pass
         return False
 
@@ -758,7 +758,7 @@ class Bot(object):
     def parse_extban(self, eb):
         try:
             eb = str(eb)
-        except:
+        except Exception:
             return
         ebprefix = self.server['ISUPPORT']['EXTBAN'][0]
         if ebprefix in '.^$*+?{}[]()\\|':

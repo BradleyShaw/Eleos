@@ -20,7 +20,7 @@ class Plugin(object):
             if not plugin:
                 plugin = self.__class__.__name__
             return self.manager.plugins[plugin]['commands'][cmd]['help']
-        except:
+        except Exception:
             return
 
     def space_split(self, s):
