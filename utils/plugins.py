@@ -32,7 +32,7 @@ class Plugin(object):
 
     def strip_colours(self, s):
         ccodes = ['\x0f', '\x16', '\x1d', '\x1f', '\x02',
-                  '\x03([1-9][0-6]?)?,?([1-9][0-6]?)?']
+                  '\x03[01]?([1-9][0-6]?)?,?[01]?([1-9][0-6]?)?']
         for cc in ccodes:
             s = re.sub(cc, '', s)
         return s
